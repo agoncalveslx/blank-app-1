@@ -289,8 +289,8 @@ e submete a decisão final a validação humana.
 # Lógica interna do sistema
 # -------------------------
 st.markdown('<div class="cartao">', unsafe_allow_html=True)
-st.markdown('<div class="titulo-secao">2. Lógica interna do sistema</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitulo-secao">Os indicadores de validação são calculados automaticamente a partir das entradas fornecidas.</div>', unsafe_allow_html=True)
+st.markdown('<div class="titulo-secao">2. Processamento Operacional</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitulo-secao">O sistema calcula indicadores, avalia o risco e gera a recomendação.</div>', unsafe_allow_html=True)
 
 st.info("Após clicar em “Gerar recomendação”, o sistema calcula automaticamente os indicadores, a pontuação total, o nível de risco e a ação proposta.")
 
