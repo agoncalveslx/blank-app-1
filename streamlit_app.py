@@ -289,7 +289,7 @@ e submete a decisão final a validação humana.
 # Lógica interna do sistema
 # -------------------------
 st.markdown('<div class="cartao">', unsafe_allow_html=True)
-st.markdown('<div class="titulo-secao">2. Processamento Operacional</div>', unsafe_allow_html=True)
+st.markdown('<div class="titulo-secao">Processamento Operacional</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitulo-secao">O sistema calcula indicadores, avalia o risco e gera a recomendação.</div>', unsafe_allow_html=True)
 
 st.info("Após clicar em “Gerar recomendação”, o sistema calcula automaticamente os indicadores, a pontuação total, o nível de risco e a ação proposta.")
@@ -354,7 +354,7 @@ coluna1, coluna2 = st.columns([1, 1], gap="large")
 
 with coluna1:
     st.markdown('<div class="cartao cartao-azul">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">1. Entradas do sistema</div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">Entradas do sistema</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitulo-secao">Nesta secção, o utilizador descreve o caso que pretende analisar.</div>', unsafe_allow_html=True)
 
     st.markdown("### Dados AIS/VMS")
@@ -430,7 +430,7 @@ fundo, texto, classe_cartao = cor_risco(risco)
 
 with coluna2:
     st.markdown(f'<div class="cartao {classe_cartao}">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">3. Resultado do sistema</div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">Resultado do sistema</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitulo-secao">Resultado gerado automaticamente pelo sistema com base nas entradas selecionadas.</div>', unsafe_allow_html=True)
 
     m1, m2, m3 = st.columns(3)
