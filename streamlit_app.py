@@ -45,13 +45,6 @@ st.markdown("""
         margin-bottom: 3px;
         color: #1f2937;
     }
-    .mini-caixa {
-        background-color: #ffffff;
-        padding: 14px;
-        border-radius: 12px;
-        border: 1px solid #e5e7eb;
-        text-align: center;
-    }
     .acao-final {
         padding: 14px;
         border-radius: 12px;
@@ -93,6 +86,64 @@ def cor_risco(risco):
         return "#fef3c7", "#92400e"
     return "#fee2e2", "#991b1b"
 
+def calcular_indicadores(posicao, velocidade, radar, contexto):
+    # I1 - Anomalia de identidade
+    if posicao == "Muito suspeita":
+        i1 = "Elevado"
+    elif posicao == "Ligeiramente suspeita":
+        i1 = "Médio"
+    else:
+        i1 = "Baixo"
+
+    # I2 - Alteração anormal de identidade
+    if posicao == "Muito suspeita" and radar == "Discordante":
+        i2 = "Elevado"
+    elif posicao == "Ligeiramente suspeita" or radar == "Parcialmente discordante":
+        i2 = "Médio"
+    else:
+        i2 = "Baixo"
+
+    # I3 - Plausibilidade cinemática
+    if velocidade == "Muito suspeito":
+        i3 = "Elevado"
+    elif velocidade == "Ligeiramente suspeito":
+        i3 = "Médio"
+    else:
+        i3 = "Baixo"
+
+    # I4 - Consistência espaço-temporal
+    if posicao == "Muito suspeita" and velocidade == "Muito suspeito":
+        i4 = "Elevado"
+    elif posicao == "Ligeiramente suspeita" or velocidade == "Ligeiramente suspeito":
+        i4 = "Médio"
+    else:
+        i4 = "Baixo"
+
+    # I5 - Consistência contextual
+    if contexto == "Muito suspeito":
+        i5 = "Elevado"
+    elif contexto == "Pouco habitual":
+        i5 = "Médio"
+    else:
+        i5 = "Baixo"
+
+    # I6 - Consistência entre fontes
+    if radar == "Discordante":
+        i6 = "Elevado"
+    elif radar == "Parcialmente discordante":
+        i6 = "Médio"
+    else:
+        i6 = "Baixo"
+
+    return {
+        "I1": i1,
+        "I2": i2,
+        "I3": i3,
+        "I4": i4,
+        "I5": i5,
+        "I6": i6
+    }
+
 # -------------------------
 # Cabeçalho
 # -------------------------
@@ -101,8 +152,9 @@ st.write("Protótipo interativo para demonstrar um sistema de apoio à decisão 
 
 with st.expander("ℹ️ Sobre este protótipo"):
     st.write("""
-    Este dashboard permite simular um caso, avaliar indicadores de validação, gerar uma recomendação automática
-    e, no final, confirmar ou alterar a decisão com justificação humana.
+    Este dashboard permite simular um caso a partir de dados AIS/VMS e outras fontes contextuais.
+    Com base nessas entradas, o sistema calcula automaticamente indicadores de validação,
+    gera uma recomendação e, no final, permite a validação humana da decisão.
     """)
 
 # -------------------------
@@ -116,7 +168,11 @@ with coluna1:
     st.markdown('<div class="subtexto">Nesta secção, o utilizador descreve o caso que pretende analisar.</div>', unsafe_allow_html=True)
 
     with st.expander("ℹ️ Ver explicação desta secção"):
-        st.write("Aqui são introduzidos os dados observados, os alertas automáticos e a informação contextual do caso.")
+        st.write("""
+        Aqui são introduzidos os dados observados que servem de base à análise.
+        Para simplificar o protótipo, apenas são consideradas entradas diretamente observáveis:
+        dados AIS/VMS e outras fontes contextuais.
+        """)
 
     st.markdown("### Dados AIS/VMS")
 
@@ -133,24 +189,6 @@ with coluna1:
         velocidade = st.selectbox(
             "Velocidade/Curso",
             ["Normal", "Ligeiramente suspeito", "Muito suspeito"],
-            label_visibility="collapsed"
-        )
-
-    st.markdown("### Saídas dos detetores")
-
-    col_c, col_d = st.columns(2)
-    with col_c:
-        st.markdown('<div class="etiqueta">Nível de alerta do detetor</div>', unsafe_allow_html=True)
-        alerta = st.selectbox(
-            "Nível de alerta do detetor",
-            ["Sem alerta", "Alerta moderado", "Alerta elevado"],
-            label_visibility="collapsed"
-        )
-    with col_d:
-        st.markdown('<div class="etiqueta">Pontuação do detetor</div>', unsafe_allow_html=True)
-        pontuacao_detetor = st.slider(
-            "Pontuação do detetor",
-            0, 100, 50,
             label_visibility="collapsed"
         )
 
@@ -177,37 +215,16 @@ with coluna1:
 
 with coluna2:
     st.markdown('<div class="bloco">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">2. Indicadores de validação</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtexto">Nesta secção, o utilizador avalia os indicadores que suportam a recomendação.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">2. Lógica interna do sistema</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtexto">Os indicadores de validação são calculados automaticamente a partir das entradas fornecidas.</div>', unsafe_allow_html=True)
 
-    with st.expander("ℹ️ Ver explicação dos indicadores"):
+    with st.expander("ℹ️ Ver explicação desta secção"):
         st.write("""
-        Os indicadores representam os principais aspetos que o sistema considera para avaliar o caso,
-        tais como identidade, plausibilidade do movimento, coerência temporal, contexto e consistência entre fontes.
+        Nesta versão do protótipo, os indicadores de validação não são preenchidos manualmente pelo utilizador.
+        Em vez disso, são calculados automaticamente pelo sistema com base nos dados introduzidos.
         """)
 
-    col_i1, col_i2 = st.columns(2)
-
-    with col_i1:
-        st.markdown('<div class="etiqueta">I1 - Anomalia de identidade</div>', unsafe_allow_html=True)
-        i1 = st.selectbox("I1", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
-
-        st.markdown('<div class="etiqueta">I2 - Alteração anormal de identidade</div>', unsafe_allow_html=True)
-        i2 = st.selectbox("I2", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
-
-        st.markdown('<div class="etiqueta">I3 - Plausibilidade cinemática</div>', unsafe_allow_html=True)
-        i3 = st.selectbox("I3", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
-
-    with col_i2:
-        st.markdown('<div class="etiqueta">I4 - Consistência espaço-temporal</div>', unsafe_allow_html=True)
-        i4 = st.selectbox("I4", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
-
-        st.markdown('<div class="etiqueta">I5 - Consistência contextual</div>', unsafe_allow_html=True)
-        i5 = st.selectbox("I5", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
-
-        st.markdown('<div class="etiqueta">I6 - Consistência entre fontes</div>', unsafe_allow_html=True)
-        i6 = st.selectbox("I6", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
-
+    st.info("Após clicar em “Gerar recomendação”, o sistema calcula automaticamente os indicadores de validação, a pontuação total, o nível de risco e a ação proposta.")
     st.markdown('</div>', unsafe_allow_html=True)
 
 # -------------------------
@@ -226,14 +243,7 @@ pesos = {
 # Cálculo e apresentação
 # -------------------------
 if gerar:
-    indicadores = {
-        "I1": i1,
-        "I2": i2,
-        "I3": i3,
-        "I4": i4,
-        "I5": i5,
-        "I6": i6
-    }
+    indicadores = calcular_indicadores(posicao, velocidade, radar, contexto)
 
     contributos = {}
     pontuacao_total = 0
@@ -255,7 +265,7 @@ if gerar:
 
     st.markdown('<div class="bloco-resultado">', unsafe_allow_html=True)
     st.markdown('<div class="titulo-secao">3. Resultado do sistema</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtexto">O sistema agrega os indicadores selecionados, calcula a pontuação total e propõe uma ação inicial.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtexto">O sistema calcula automaticamente os indicadores, a pontuação total e propõe uma ação inicial.</div>', unsafe_allow_html=True)
 
     m1, m2, m3 = st.columns(3)
     with m1:
@@ -277,8 +287,8 @@ if gerar:
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="bloco">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">4. Evidência e rastreabilidade</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtexto">Visualização dos contributos de cada indicador e dos fatores principais da recomendação.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">4. Indicadores de validação e rastreabilidade</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtexto">Visualização dos indicadores calculados pelo sistema e dos principais fatores da recomendação.</div>', unsafe_allow_html=True)
 
     tabela = pd.DataFrame([
         {
@@ -304,11 +314,9 @@ if gerar:
             st.write(f"• {fator}")
 
     with col_resumo2:
-        st.markdown("#### Resumo da evidência")
+        st.markdown("#### Resumo das entradas")
         st.write(f"**Posição/Trajetória:** {posicao}")
         st.write(f"**Velocidade/Curso:** {velocidade}")
-        st.write(f"**Alerta do detetor:** {alerta}")
-        st.write(f"**Pontuação do detetor:** {pontuacao_detetor}")
         st.write(f"**Concordância com radar/outras fontes:** {radar}")
         st.write(f"**Contexto operacional:** {contexto}")
 
