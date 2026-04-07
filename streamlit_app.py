@@ -1,9 +1,67 @@
 import streamlit as st
+import pandas as pd
 
-st.set_page_config(page_title="Sistema de Validação da Decisão", layout="wide")
+st.set_page_config(
+    page_title="Sistema de Validação da Decisão",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-st.title("Sistema de Validação da Decisão")
-st.write("Protótipo simples para demonstrar um sistema de apoio à decisão com validação humana final.")
+# -------------------------
+# Estilo visual
+# -------------------------
+st.markdown("""
+<style>
+    .bloco {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        border: 1px solid #e9ecef;
+        margin-bottom: 20px;
+    }
+    .bloco-resultado {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid #dee2e6;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+    .titulo-secao {
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+        color: #1f2937;
+    }
+    .subtexto {
+        color: #6b7280;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+    }
+    .etiqueta {
+        font-weight: 600;
+        margin-top: 8px;
+        margin-bottom: 3px;
+        color: #1f2937;
+    }
+    .mini-caixa {
+        background-color: #ffffff;
+        padding: 14px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        text-align: center;
+    }
+    .acao-final {
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-align: center;
+        margin-top: 8px;
+        border: 1px solid #d1d5db;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # -------------------------
 # Funções auxiliares
@@ -28,120 +86,129 @@ def acao_proposta(pontuacao):
     else:
         return "Escalar"
 
+def cor_risco(risco):
+    if risco == "Baixo":
+        return "#d1fae5", "#065f46"
+    elif risco == "Médio":
+        return "#fef3c7", "#92400e"
+    return "#fee2e2", "#991b1b"
+
+# -------------------------
+# Cabeçalho
+# -------------------------
+st.title("Sistema de Validação da Decisão")
+st.write("Protótipo interativo para demonstrar um sistema de apoio à decisão com recomendação automática e validação humana final.")
+
+with st.expander("ℹ️ Sobre este protótipo"):
+    st.write("""
+    Este dashboard permite simular um caso, avaliar indicadores de validação, gerar uma recomendação automática
+    e, no final, confirmar ou alterar a decisão com justificação humana.
+    """)
+
 # -------------------------
 # Layout principal
 # -------------------------
-coluna1, coluna2 = st.columns([1, 1])
+coluna1, coluna2 = st.columns([1, 1], gap="large")
 
 with coluna1:
-    st.subheader("1. Entradas do sistema")
-    st.markdown("ℹ️ Nesta secção, o utilizador descreve o caso que pretende analisar, introduzindo os dados disponíveis e o contexto observado.")
+    st.markdown('<div class="bloco">', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">1. Entradas do sistema</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtexto">Nesta secção, o utilizador descreve o caso que pretende analisar.</div>', unsafe_allow_html=True)
+
+    with st.expander("ℹ️ Ver explicação desta secção"):
+        st.write("Aqui são introduzidos os dados observados, os alertas automáticos e a informação contextual do caso.")
 
     st.markdown("### Dados AIS/VMS")
 
-    st.markdown("**Posição/Trajetória**")
-    st.markdown("ℹ️ Informação sobre o percurso observado da embarcação. Deve indicar se a trajetória parece normal ou suspeita.")
-    posicao = st.selectbox(
-        "Selecione a avaliação da posição/trajetória",
-        ["Normal", "Ligeiramente suspeita", "Muito suspeita"],
-        label_visibility="collapsed"
-    )
-
-    st.markdown("**Velocidade/Curso**")
-    st.markdown("ℹ️ Avaliação da coerência da velocidade e da direção da embarcação ao longo do tempo.")
-    velocidade = st.selectbox(
-        "Selecione a avaliação da velocidade/curso",
-        ["Normal", "Ligeiramente suspeito", "Muito suspeito"],
-        label_visibility="collapsed"
-    )
+    col_a, col_b = st.columns(2)
+    with col_a:
+        st.markdown('<div class="etiqueta">Posição/Trajetória</div>', unsafe_allow_html=True)
+        posicao = st.selectbox(
+            "Posição/Trajetória",
+            ["Normal", "Ligeiramente suspeita", "Muito suspeita"],
+            label_visibility="collapsed"
+        )
+    with col_b:
+        st.markdown('<div class="etiqueta">Velocidade/Curso</div>', unsafe_allow_html=True)
+        velocidade = st.selectbox(
+            "Velocidade/Curso",
+            ["Normal", "Ligeiramente suspeito", "Muito suspeito"],
+            label_visibility="collapsed"
+        )
 
     st.markdown("### Saídas dos detetores")
 
-    st.markdown("**Nível de alerta do detetor**")
-    st.markdown("ℹ️ Classificação qualitativa do alerta gerado pelo sistema automático. Indica se o caso parece pouco, moderadamente ou muito suspeito.")
-    alerta = st.selectbox(
-        "Selecione o nível de alerta do detetor",
-        ["Sem alerta", "Alerta moderado", "Alerta elevado"],
-        label_visibility="collapsed"
-    )
-
-    st.markdown("**Pontuação do detetor**")
-    st.markdown("ℹ️ Valor numérico associado ao grau de suspeita identificado pelo detetor. Quanto maior a pontuação, maior a suspeita.")
-    pontuacao_detetor = st.slider(
-        "Selecione a pontuação do detetor",
-        0, 100, 50,
-        label_visibility="collapsed"
-    )
+    col_c, col_d = st.columns(2)
+    with col_c:
+        st.markdown('<div class="etiqueta">Nível de alerta do detetor</div>', unsafe_allow_html=True)
+        alerta = st.selectbox(
+            "Nível de alerta do detetor",
+            ["Sem alerta", "Alerta moderado", "Alerta elevado"],
+            label_visibility="collapsed"
+        )
+    with col_d:
+        st.markdown('<div class="etiqueta">Pontuação do detetor</div>', unsafe_allow_html=True)
+        pontuacao_detetor = st.slider(
+            "Pontuação do detetor",
+            0, 100, 50,
+            label_visibility="collapsed"
+        )
 
     st.markdown("### Outras fontes")
 
-    st.markdown("**Concordância com radar/outras fontes**")
-    st.markdown("ℹ️ Indica se outras fontes de informação confirmam ou contradizem os dados principais observados.")
-    radar = st.selectbox(
-        "Selecione a concordância com radar/outras fontes",
-        ["Concordante", "Parcialmente discordante", "Discordante"],
-        label_visibility="collapsed"
-    )
+    col_e, col_f = st.columns(2)
+    with col_e:
+        st.markdown('<div class="etiqueta">Concordância com radar/outras fontes</div>', unsafe_allow_html=True)
+        radar = st.selectbox(
+            "Concordância com radar/outras fontes",
+            ["Concordante", "Parcialmente discordante", "Discordante"],
+            label_visibility="collapsed"
+        )
+    with col_f:
+        st.markdown('<div class="etiqueta">Contexto operacional</div>', unsafe_allow_html=True)
+        contexto = st.selectbox(
+            "Contexto operacional",
+            ["Normal", "Pouco habitual", "Muito suspeito"],
+            label_visibility="collapsed"
+        )
 
-    st.markdown("**Contexto operacional**")
-    st.markdown("ℹ️ Representa se a situação observada é normal ou invulgar no contexto operacional em análise.")
-    contexto = st.selectbox(
-        "Selecione o contexto operacional",
-        ["Normal", "Pouco habitual", "Muito suspeito"],
-        label_visibility="collapsed"
-    )
+    gerar = st.button("Gerar recomendação", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with coluna2:
-    st.subheader("2. Indicadores de validação")
-    st.markdown("ℹ️ Nesta secção, o utilizador avalia os principais indicadores que ajudam o sistema a interpretar a situação e a propor uma recomendação.")
+    st.markdown('<div class="bloco">', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">2. Indicadores de validação</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtexto">Nesta secção, o utilizador avalia os indicadores que suportam a recomendação.</div>', unsafe_allow_html=True)
 
-    st.markdown("**I1 - Anomalia de identidade**")
-    st.markdown("ℹ️ Avalia se existem sinais de inconsistência na identificação da embarcação.")
-    i1 = st.selectbox(
-        "Selecione o nível de I1",
-        ["Baixo", "Médio", "Elevado"],
-        label_visibility="collapsed"
-    )
+    with st.expander("ℹ️ Ver explicação dos indicadores"):
+        st.write("""
+        Os indicadores representam os principais aspetos que o sistema considera para avaliar o caso,
+        tais como identidade, plausibilidade do movimento, coerência temporal, contexto e consistência entre fontes.
+        """)
 
-    st.markdown("**I2 - Alteração anormal de identidade**")
-    st.markdown("ℹ️ Avalia mudanças inesperadas ou incoerentes nos elementos de identidade.")
-    i2 = st.selectbox(
-        "Selecione o nível de I2",
-        ["Baixo", "Médio", "Elevado"],
-        label_visibility="collapsed"
-    )
+    col_i1, col_i2 = st.columns(2)
 
-    st.markdown("**I3 - Plausibilidade cinemática**")
-    st.markdown("ℹ️ Verifica se o comportamento do movimento da embarcação é fisicamente plausível.")
-    i3 = st.selectbox(
-        "Selecione o nível de I3",
-        ["Baixo", "Médio", "Elevado"],
-        label_visibility="collapsed"
-    )
+    with col_i1:
+        st.markdown('<div class="etiqueta">I1 - Anomalia de identidade</div>', unsafe_allow_html=True)
+        i1 = st.selectbox("I1", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
 
-    st.markdown("**I4 - Consistência espaço-temporal**")
-    st.markdown("ℹ️ Verifica se a evolução da posição e do tempo faz sentido de forma coerente.")
-    i4 = st.selectbox(
-        "Selecione o nível de I4",
-        ["Baixo", "Médio", "Elevado"],
-        label_visibility="collapsed"
-    )
+        st.markdown('<div class="etiqueta">I2 - Alteração anormal de identidade</div>', unsafe_allow_html=True)
+        i2 = st.selectbox("I2", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
 
-    st.markdown("**I5 - Consistência contextual**")
-    st.markdown("ℹ️ Analisa se o comportamento observado é coerente com o contexto operacional.")
-    i5 = st.selectbox(
-        "Selecione o nível de I5",
-        ["Baixo", "Médio", "Elevado"],
-        label_visibility="collapsed"
-    )
+        st.markdown('<div class="etiqueta">I3 - Plausibilidade cinemática</div>', unsafe_allow_html=True)
+        i3 = st.selectbox("I3", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
 
-    st.markdown("**I6 - Consistência entre fontes**")
-    st.markdown("ℹ️ Avalia se diferentes fontes de informação apresentam uma interpretação consistente do caso.")
-    i6 = st.selectbox(
-        "Selecione o nível de I6",
-        ["Baixo", "Médio", "Elevado"],
-        label_visibility="collapsed"
-    )
+    with col_i2:
+        st.markdown('<div class="etiqueta">I4 - Consistência espaço-temporal</div>', unsafe_allow_html=True)
+        i4 = st.selectbox("I4", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
+
+        st.markdown('<div class="etiqueta">I5 - Consistência contextual</div>', unsafe_allow_html=True)
+        i5 = st.selectbox("I5", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
+
+        st.markdown('<div class="etiqueta">I6 - Consistência entre fontes</div>', unsafe_allow_html=True)
+        i6 = st.selectbox("I6", ["Baixo", "Médio", "Elevado"], label_visibility="collapsed")
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # -------------------------
 # Pesos
@@ -156,10 +223,9 @@ pesos = {
 }
 
 # -------------------------
-# Cálculo
+# Cálculo e apresentação
 # -------------------------
-if st.button("Gerar recomendação"):
-
+if gerar:
     indicadores = {
         "I1": i1,
         "I2": i2,
@@ -176,109 +242,122 @@ if st.button("Gerar recomendação"):
         pontos = nivel_para_pontos(valor)
         contributo = pontos * pesos[chave]
         contributos[chave] = {
-            "nivel": valor,
-            "pontos": pontos,
-            "peso": pesos[chave],
-            "contributo": contributo
+            "Nível": valor,
+            "Pontos": pontos,
+            "Peso": pesos[chave],
+            "Contributo": contributo
         }
         pontuacao_total += contributo
 
     risco = nivel_risco(pontuacao_total)
     acao = acao_proposta(pontuacao_total)
+    fundo, texto = cor_risco(risco)
 
-    st.divider()
-    st.subheader("3. Resultado do sistema")
-    st.markdown("ℹ️ O sistema agrega os indicadores selecionados, calcula uma pontuação total e propõe uma ação inicial.")
+    st.markdown('<div class="bloco-resultado">', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">3. Resultado do sistema</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtexto">O sistema agrega os indicadores selecionados, calcula a pontuação total e propõe uma ação inicial.</div>', unsafe_allow_html=True)
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
+    m1, m2, m3 = st.columns(3)
+    with m1:
         st.metric("Pontuação total", pontuacao_total)
-        st.markdown("ℹ️ Resultado agregado da avaliação dos indicadores.")
-
-    with c2:
+    with m2:
         st.metric("Nível de risco", risco)
-        st.markdown("ℹ️ Classificação global do risco com base na pontuação obtida.")
-
-    with c3:
+    with m3:
         st.metric("Ação proposta", acao)
-        st.markdown("ℹ️ Recomendação inicial gerada pelo sistema para apoiar a decisão humana.")
 
-    if acao == "Escalar":
-        st.error(f"Ação recomendada: {acao}")
-    elif acao == "Monitorizar":
-        st.warning(f"Ação recomendada: {acao}")
-    else:
-        st.success(f"Ação recomendada: {acao}")
-
-    st.subheader("4. Evidência e rastreabilidade")
-    st.markdown("ℹ️ Esta secção mostra como a decisão foi construída, indicando os contributos de cada indicador e os principais fatores que influenciaram a recomendação.")
-
-    linhas = []
-    for indicador, dados in contributos.items():
-        linhas.append({
-            "Indicador": indicador,
-            "Nível": dados["nivel"],
-            "Pontos": dados["pontos"],
-            "Peso": dados["peso"],
-            "Contributo": dados["contributo"]
-        })
-
-    st.table(linhas)
-
-    ordenados = sorted(contributos.items(), key=lambda x: x[1]["contributo"], reverse=True)
-    principais_fatores = [f"{item[0]} ({item[1]['nivel']})" for item in ordenados[:3]]
-
-    st.markdown("**Principais fatores da decisão:**")
-    for fator in principais_fatores:
-        st.write(f"- {fator}")
-
-    st.markdown("**Resumo da evidência:**")
-    st.write(
+    st.markdown(
         f"""
-        - Posição/Trajetória: **{posicao}**
-        - Velocidade/Curso: **{velocidade}**
-        - Alerta do detetor: **{alerta}**
-        - Pontuação do detetor: **{pontuacao_detetor}**
-        - Concordância com radar/outras fontes: **{radar}**
-        - Contexto operacional: **{contexto}**
-        """
+        <div class="acao-final" style="background-color:{fundo}; color:{texto};">
+            Ação recomendada: {acao}
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-    st.subheader("5. Validação humana")
-    st.markdown("ℹ️ O utilizador analisa a recomendação do sistema e pode confirmá-la ou alterá-la com base na evidência apresentada.")
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("**Decisão final do utilizador**")
-    st.markdown("ℹ️ Permite ao utilizador confirmar ou alterar a recomendação proposta pelo sistema.")
-    decisao_utilizador = st.selectbox(
-        "Selecione a decisão final do utilizador",
-        ["Confirmar ação proposta", "Ignorar", "Monitorizar", "Escalar", "Requer revisão"],
-        label_visibility="collapsed"
-    )
+    st.markdown('<div class="bloco">', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">4. Evidência e rastreabilidade</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtexto">Visualização dos contributos de cada indicador e dos fatores principais da recomendação.</div>', unsafe_allow_html=True)
 
-    st.markdown("**Justificação da decisão final**")
-    st.markdown("ℹ️ Campo destinado à justificação da decisão final tomada pelo utilizador.")
-    justificacao = st.text_area(
-        "Introduza a justificação da decisão final",
-        placeholder="Explica por que motivo confirmas ou alteras a ação proposta...",
-        label_visibility="collapsed"
-    )
+    tabela = pd.DataFrame([
+        {
+            "Indicador": indicador,
+            "Nível": dados["Nível"],
+            "Pontos": dados["Pontos"],
+            "Peso": dados["Peso"],
+            "Contributo": dados["Contributo"]
+        }
+        for indicador, dados in contributos.items()
+    ])
 
-    if st.button("Guardar decisão final"):
+    st.dataframe(tabela, use_container_width=True, hide_index=True)
+
+    ordenados = sorted(contributos.items(), key=lambda x: x[1]["Contributo"], reverse=True)
+    principais_fatores = [f"{item[0]} ({item[1]['Nível']})" for item in ordenados[:3]]
+
+    col_resumo1, col_resumo2 = st.columns(2)
+
+    with col_resumo1:
+        st.markdown("#### Principais fatores da decisão")
+        for fator in principais_fatores:
+            st.write(f"• {fator}")
+
+    with col_resumo2:
+        st.markdown("#### Resumo da evidência")
+        st.write(f"**Posição/Trajetória:** {posicao}")
+        st.write(f"**Velocidade/Curso:** {velocidade}")
+        st.write(f"**Alerta do detetor:** {alerta}")
+        st.write(f"**Pontuação do detetor:** {pontuacao_detetor}")
+        st.write(f"**Concordância com radar/outras fontes:** {radar}")
+        st.write(f"**Contexto operacional:** {contexto}")
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="bloco">', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">5. Validação humana</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtexto">O utilizador pode confirmar ou alterar a recomendação automática com justificação.</div>', unsafe_allow_html=True)
+
+    col_v1, col_v2 = st.columns([1, 2])
+
+    with col_v1:
+        decisao_utilizador = st.selectbox(
+            "Decisão final do utilizador",
+            ["Confirmar ação proposta", "Ignorar", "Monitorizar", "Escalar", "Requer revisão"]
+        )
+
+    with col_v2:
+        justificacao = st.text_area(
+            "Justificação da decisão final",
+            placeholder="Explica por que motivo confirmas ou alteras a ação proposta...",
+            height=120
+        )
+
+    guardar = st.button("Guardar decisão final", use_container_width=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    if guardar:
         decisao_final = acao if decisao_utilizador == "Confirmar ação proposta" else decisao_utilizador
 
-        st.divider()
-        st.subheader("6. Decisão final justificada")
-        st.markdown("ℹ️ Nesta secção é apresentado o registo final da decisão, incluindo a recomendação do sistema, a decisão do utilizador e a respetiva justificação.")
+        st.markdown('<div class="bloco-resultado">', unsafe_allow_html=True)
+        st.markdown('<div class="titulo-secao">6. Decisão final justificada</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtexto">Registo final da decisão humana apoiada pelo sistema.</div>', unsafe_allow_html=True)
 
-        st.write(f"**Ação proposta pelo sistema:** {acao}")
-        st.write(f"**Decisão final do utilizador:** {decisao_final}")
-        st.write(f"**Nível de risco:** {risco}")
-        st.write(f"**Pontuação total:** {pontuacao_total}")
+        r1, r2, r3, r4 = st.columns(4)
+        with r1:
+            st.metric("Ação proposta", acao)
+        with r2:
+            st.metric("Decisão final", decisao_final)
+        with r3:
+            st.metric("Nível de risco", risco)
+        with r4:
+            st.metric("Pontuação total", pontuacao_total)
 
+        st.markdown("#### Justificação")
         if justificacao.strip():
-            st.write("**Justificação:**")
             st.write(justificacao)
         else:
-            st.write("**Justificação:** não fornecida")
+            st.write("Não foi fornecida justificação.")
 
-        st.info("Registo concluído com recomendação automática e validação humana.")
+        st.success("Registo concluído com recomendação automática e validação humana.")
+        st.markdown('</div>', unsafe_allow_html=True)
