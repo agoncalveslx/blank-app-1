@@ -53,6 +53,13 @@ st.markdown("""
         margin-top: 8px;
         border: 1px solid #d1d5db;
     }
+    .caixa-explicacao {
+        background-color: #f9fafb;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 15px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -87,7 +94,6 @@ def cor_risco(risco):
     return "#fee2e2", "#991b1b"
 
 def calcular_indicadores(posicao, velocidade, radar, contexto):
-    # I1 - Anomalia de identidade
     if posicao == "Muito suspeita":
         i1 = "Elevado"
     elif posicao == "Ligeiramente suspeita":
@@ -95,7 +101,6 @@ def calcular_indicadores(posicao, velocidade, radar, contexto):
     else:
         i1 = "Baixo"
 
-    # I2 - Alteração anormal de identidade
     if posicao == "Muito suspeita" and radar == "Discordante":
         i2 = "Elevado"
     elif posicao == "Ligeiramente suspeita" or radar == "Parcialmente discordante":
@@ -103,7 +108,6 @@ def calcular_indicadores(posicao, velocidade, radar, contexto):
     else:
         i2 = "Baixo"
 
-    # I3 - Plausibilidade cinemática
     if velocidade == "Muito suspeito":
         i3 = "Elevado"
     elif velocidade == "Ligeiramente suspeito":
@@ -111,7 +115,6 @@ def calcular_indicadores(posicao, velocidade, radar, contexto):
     else:
         i3 = "Baixo"
 
-    # I4 - Consistência espaço-temporal
     if posicao == "Muito suspeita" and velocidade == "Muito suspeito":
         i4 = "Elevado"
     elif posicao == "Ligeiramente suspeita" or velocidade == "Ligeiramente suspeito":
@@ -119,7 +122,6 @@ def calcular_indicadores(posicao, velocidade, radar, contexto):
     else:
         i4 = "Baixo"
 
-    # I5 - Consistência contextual
     if contexto == "Muito suspeito":
         i5 = "Elevado"
     elif contexto == "Pouco habitual":
@@ -127,7 +129,6 @@ def calcular_indicadores(posicao, velocidade, radar, contexto):
     else:
         i5 = "Baixo"
 
-    # I6 - Consistência entre fontes
     if radar == "Discordante":
         i6 = "Elevado"
     elif radar == "Parcialmente discordante":
@@ -143,6 +144,40 @@ def calcular_indicadores(posicao, velocidade, radar, contexto):
         "I5": i5,
         "I6": i6
     }
+
+def impacto_textual(contributo):
+    if contributo >= 5:
+        return "Elevado"
+    elif contributo >= 2:
+        return "Moderado"
+    elif contributo >= 1:
+        return "Reduzido"
+    return "Muito reduzido"
+
+def gerar_explicacao_decisao(acao, risco, pontuacao_total, fatores):
+    nomes = [f["nome"] for f in fatores[:3]]
+
+    if len(nomes) == 1:
+        fatores_texto = nomes[0]
+    elif len(nomes) == 2:
+        fatores_texto = f"{nomes[0]} e {nomes[1]}"
+    else:
+        fatores_texto = f"{nomes[0]}, {nomes[1]} e {nomes[2]}"
+
+    return (
+        f"A recomendação de **{acao.lower()}** foi gerada porque a pontuação total foi "
+        f"**{pontuacao_total}**, correspondendo a um nível de risco **{risco.lower()}**. "
+        f"Os fatores que mais contribuíram para esta decisão foram **{fatores_texto}**."
+    )
+
+nomes_indicadores = {
+    "I1": "Anomalia de identidade",
+    "I2": "Alteração anormal de identidade",
+    "I3": "Plausibilidade cinemática",
+    "I4": "Consistência espaço-temporal",
+    "I5": "Consistência contextual",
+    "I6": "Consistência entre fontes"
+}
 
 # -------------------------
 # Cabeçalho
@@ -252,6 +287,8 @@ if gerar:
         pontos = nivel_para_pontos(valor)
         contributo = pontos * pesos[chave]
         contributos[chave] = {
+            "Código": chave,
+            "Nome": nomes_indicadores[chave],
             "Nível": valor,
             "Pontos": pontos,
             "Peso": pesos[chave],
@@ -283,35 +320,33 @@ if gerar:
         """,
         unsafe_allow_html=True
     )
-
     st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="bloco">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">4. Indicadores de validação e rastreabilidade</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtexto">Visualização dos indicadores calculados pelo sistema e dos principais fatores da recomendação.</div>', unsafe_allow_html=True)
-
-    tabela = pd.DataFrame([
-        {
-            "Indicador": indicador,
-            "Nível": dados["Nível"],
-            "Pontos": dados["Pontos"],
-            "Peso": dados["Peso"],
-            "Contributo": dados["Contributo"]
-        }
-        for indicador, dados in contributos.items()
-    ])
-
-    st.dataframe(tabela, use_container_width=True, hide_index=True)
-
     ordenados = sorted(contributos.items(), key=lambda x: x[1]["Contributo"], reverse=True)
-    principais_fatores = [f"{item[0]} ({item[1]['Nível']})" for item in ordenados[:3]]
+    fatores_principais = [
+        {
+            "codigo": item[0],
+            "nome": item[1]["Nome"],
+            "nivel": item[1]["Nível"],
+            "contributo": item[1]["Contributo"]
+        }
+        for item in ordenados[:3]
+    ]
+
+    explicacao = gerar_explicacao_decisao(acao, risco, pontuacao_total, fatores_principais)
+
+    st.markdown('<div class="bloco">', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">4. Explicação da decisão e rastreabilidade</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtexto">Esta secção mostra, de forma simples, porque razão o sistema gerou esta recomendação.</div>', unsafe_allow_html=True)
+
+    st.markdown(f'<div class="caixa-explicacao">{explicacao}</div>', unsafe_allow_html=True)
 
     col_resumo1, col_resumo2 = st.columns(2)
 
     with col_resumo1:
-        st.markdown("#### Principais fatores da decisão")
-        for fator in principais_fatores:
-            st.write(f"• {fator}")
+        st.markdown("#### Fatores principais da decisão")
+        for fator in fatores_principais:
+            st.write(f"• **{fator['nome']}** ({fator['codigo']}) — nível **{fator['nivel']}**")
 
     with col_resumo2:
         st.markdown("#### Resumo das entradas")
@@ -320,6 +355,18 @@ if gerar:
         st.write(f"**Concordância com radar/outras fontes:** {radar}")
         st.write(f"**Contexto operacional:** {contexto}")
 
+    st.markdown("#### Detalhe técnico dos indicadores")
+    tabela = pd.DataFrame([
+        {
+            "Código": dados["Código"],
+            "Indicador": dados["Nome"],
+            "Nível atribuído": dados["Nível"],
+            "Impacto na decisão": impacto_textual(dados["Contributo"])
+        }
+        for _, dados in contributos.items()
+    ])
+
+    st.dataframe(tabela, use_container_width=True, hide_index=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="bloco">', unsafe_allow_html=True)
