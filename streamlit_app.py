@@ -1,67 +1,67 @@
 import streamlit as st
 
-st.set_page_config(page_title="Sistema de Validação de Decisão", layout="wide")
+st.set_page_config(page_title="Sistema de Validação da Decisão", layout="wide")
 
-st.title("Sistema de Validação de Decisão")
+st.title("Sistema de Validação da Decisão")
 st.write("Protótipo simples para demonstrar um sistema de apoio à decisão com validação humana final.")
 
 # -------------------------
 # Funções auxiliares
 # -------------------------
-def level_to_points(level):
-    mapping = {"Low": 0, "Medium": 1, "High": 2}
-    return mapping[level]
+def nivel_para_pontos(nivel):
+    mapeamento = {"Baixo": 0, "Médio": 1, "Elevado": 2}
+    return mapeamento[nivel]
 
-def risk_label(score):
-    if score <= 4:
-        return "Green"
-    elif score <= 8:
-        return "Amber"
+def nivel_risco(pontuacao):
+    if pontuacao <= 4:
+        return "Baixo"
+    elif pontuacao <= 8:
+        return "Médio"
     else:
-        return "Red"
+        return "Elevado"
 
-def proposed_action(score):
-    if score <= 4:
-        return "Dismiss"
-    elif score <= 8:
-        return "Monitor"
+def acao_proposta(pontuacao):
+    if pontuacao <= 4:
+        return "Ignorar"
+    elif pontuacao <= 8:
+        return "Monitorizar"
     else:
-        return "Escalate"
+        return "Escalar"
 
 # -------------------------
 # Layout principal
 # -------------------------
-col1, col2 = st.columns([1, 1])
+coluna1, coluna2 = st.columns([1, 1])
 
-with col1:
+with coluna1:
     st.subheader("1. Entradas do sistema")
 
     st.markdown("**Dados AIS/VMS**")
     posicao = st.selectbox("Posição/Trajetória", ["Normal", "Ligeiramente suspeita", "Muito suspeita"])
     velocidade = st.selectbox("Velocidade/Curso", ["Normal", "Ligeiramente suspeito", "Muito suspeito"])
 
-    st.markdown("**Outputs de detetores**")
+    st.markdown("**Saídas dos detetores**")
     alerta = st.selectbox("Nível de alerta do detetor", ["Sem alerta", "Alerta moderado", "Alerta elevado"])
-    score_detector = st.slider("Score do detetor", 0, 100, 50)
+    pontuacao_detetor = st.slider("Pontuação do detetor", 0, 100, 50)
 
     st.markdown("**Outras fontes**")
     radar = st.selectbox("Concordância com radar/outras fontes", ["Concordante", "Parcialmente discordante", "Discordante"])
     contexto = st.selectbox("Contexto operacional", ["Normal", "Pouco habitual", "Muito suspeito"])
 
-with col2:
+with coluna2:
     st.subheader("2. Indicadores de validação")
 
-    i1 = st.selectbox("I1 - Anomalia de identidade", ["Low", "Medium", "High"])
-    i2 = st.selectbox("I2 - Alteração anormal de identidade", ["Low", "Medium", "High"])
-    i3 = st.selectbox("I3 - Plausibilidade cinemática", ["Low", "Medium", "High"])
-    i4 = st.selectbox("I4 - Consistência espaço-temporal", ["Low", "Medium", "High"])
-    i5 = st.selectbox("I5 - Consistência contextual", ["Low", "Medium", "High"])
-    i6 = st.selectbox("I6 - Consistência entre fontes", ["Low", "Medium", "High"])
+    i1 = st.selectbox("I1 - Anomalia de identidade", ["Baixo", "Médio", "Elevado"])
+    i2 = st.selectbox("I2 - Alteração anormal de identidade", ["Baixo", "Médio", "Elevado"])
+    i3 = st.selectbox("I3 - Plausibilidade cinemática", ["Baixo", "Médio", "Elevado"])
+    i4 = st.selectbox("I4 - Consistência espaço-temporal", ["Baixo", "Médio", "Elevado"])
+    i5 = st.selectbox("I5 - Consistência contextual", ["Baixo", "Médio", "Elevado"])
+    i6 = st.selectbox("I6 - Consistência entre fontes", ["Baixo", "Médio", "Elevado"])
 
 # -------------------------
 # Pesos
 # -------------------------
-weights = {
+pesos = {
     "I1": 3,
     "I2": 2,
     "I3": 2,
@@ -75,7 +75,7 @@ weights = {
 # -------------------------
 if st.button("Gerar recomendação"):
 
-    indicators = {
+    indicadores = {
         "I1": i1,
         "I2": i2,
         "I3": i3,
@@ -84,62 +84,62 @@ if st.button("Gerar recomendação"):
         "I6": i6
     }
 
-    contributions = {}
-    total_score = 0
+    contributos = {}
+    pontuacao_total = 0
 
-    for key, value in indicators.items():
-        pts = level_to_points(value)
-        contrib = pts * weights[key]
-        contributions[key] = {
-            "level": value,
-            "points": pts,
-            "weight": weights[key],
-            "contribution": contrib
+    for chave, valor in indicadores.items():
+        pontos = nivel_para_pontos(valor)
+        contributo = pontos * pesos[chave]
+        contributos[chave] = {
+            "nivel": valor,
+            "pontos": pontos,
+            "peso": pesos[chave],
+            "contributo": contributo
         }
-        total_score += contrib
+        pontuacao_total += contributo
 
-    risk = risk_label(total_score)
-    action = proposed_action(total_score)
+    risco = nivel_risco(pontuacao_total)
+    acao = acao_proposta(pontuacao_total)
 
     st.divider()
     st.subheader("3. Resultado do sistema")
 
     c1, c2, c3 = st.columns(3)
     with c1:
-        st.metric("Score total", total_score)
+        st.metric("Pontuação total", pontuacao_total)
     with c2:
-        st.metric("Nível de risco", risk)
+        st.metric("Nível de risco", risco)
     with c3:
-        st.metric("Ação proposta", action)
+        st.metric("Ação proposta", acao)
 
-    if action == "Escalate":
-        st.error(f"Ação recomendada: {action}")
-    elif action == "Monitor":
-        st.warning(f"Ação recomendada: {action}")
+    if acao == "Escalar":
+        st.error(f"Ação recomendada: {acao}")
+    elif acao == "Monitorizar":
+        st.warning(f"Ação recomendada: {acao}")
     else:
-        st.success(f"Ação recomendada: {action}")
+        st.success(f"Ação recomendada: {acao}")
 
     st.subheader("4. Evidência e rastreabilidade")
 
-    rows = []
-    for ind, data in contributions.items():
-        rows.append({
-            "Indicador": ind,
-            "Nível": data["level"],
-            "Pontos": data["points"],
-            "Peso": data["weight"],
-            "Contributo": data["contribution"]
+    linhas = []
+    for indicador, dados in contributos.items():
+        linhas.append({
+            "Indicador": indicador,
+            "Nível": dados["nivel"],
+            "Pontos": dados["pontos"],
+            "Peso": dados["peso"],
+            "Contributo": dados["contributo"]
         })
 
-    st.table(rows)
+    st.table(linhas)
 
-    # Drivers principais
-    ordered = sorted(contributions.items(), key=lambda x: x[1]["contribution"], reverse=True)
-    top_drivers = [f"{item[0]} ({item[1]['level']})" for item in ordered[:3]]
+    # Fatores principais da decisão
+    ordenados = sorted(contributos.items(), key=lambda x: x[1]["contributo"], reverse=True)
+    principais_fatores = [f"{item[0]} ({item[1]['nivel']})" for item in ordenados[:3]]
 
-    st.markdown("**Principais drivers da decisão:**")
-    for driver in top_drivers:
-        st.write(f"- {driver}")
+    st.markdown("**Principais fatores da decisão:**")
+    for fator in principais_fatores:
+        st.write(f"- {fator}")
 
     st.markdown("**Resumo da evidência:**")
     st.write(
@@ -147,7 +147,7 @@ if st.button("Gerar recomendação"):
         - Posição/Trajetória: **{posicao}**
         - Velocidade/Curso: **{velocidade}**
         - Alerta do detetor: **{alerta}**
-        - Score do detetor: **{score_detector}**
+        - Pontuação do detetor: **{pontuacao_detetor}**
         - Concordância com radar/outras fontes: **{radar}**
         - Contexto operacional: **{contexto}**
         """
@@ -157,7 +157,7 @@ if st.button("Gerar recomendação"):
 
     decisao_utilizador = st.selectbox(
         "Decisão final do utilizador",
-        ["Confirmar ação proposta", "Dismiss", "Monitor", "Escalate", "Needs Review"]
+        ["Confirmar ação proposta", "Ignorar", "Monitorizar", "Escalar", "Requer revisão"]
     )
 
     justificacao = st.text_area(
@@ -166,15 +166,15 @@ if st.button("Gerar recomendação"):
     )
 
     if st.button("Guardar decisão final"):
-        decisao_final = action if decisao_utilizador == "Confirmar ação proposta" else decisao_utilizador
+        decisao_final = acao if decisao_utilizador == "Confirmar ação proposta" else decisao_utilizador
 
         st.divider()
         st.subheader("6. Decisão final justificada")
 
-        st.write(f"**Ação proposta pelo sistema:** {action}")
+        st.write(f"**Ação proposta pelo sistema:** {acao}")
         st.write(f"**Decisão final do utilizador:** {decisao_final}")
-        st.write(f"**Nível de risco:** {risk}")
-        st.write(f"**Score total:** {total_score}")
+        st.write(f"**Nível de risco:** {risco}")
+        st.write(f"**Pontuação total:** {pontuacao_total}")
 
         if justificacao.strip():
             st.write("**Justificação:**")
@@ -182,4 +182,4 @@ if st.button("Gerar recomendação"):
         else:
             st.write("**Justificação:** não fornecida")
 
-        st.info("Registo concluído com recomendação automática + validação humana.")
+        st.info("Registo concluído com recomendação automática e validação humana.")
