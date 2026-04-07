@@ -256,8 +256,8 @@ nomes_indicadores = {
 with st.sidebar:
     st.markdown('<div class="bloco-lateral">', unsafe_allow_html=True)
     st.markdown("### Navegação")
-    st.write("1. Entradas do sistema")
-    st.write("2. Lógica interna")
+    st.write("1. Lógica interna")
+    st.write("2. Entradas do sistema")
     st.write("3. Resultado")
     st.write("4. Explicação da decisão")
     st.write("5. Validação humana")
@@ -285,7 +285,26 @@ with st.expander("ℹ️ Sobre este protótipo"):
     """)
 
 # -------------------------
-# Layout principal
+# Lógica interna do sistema
+# -------------------------
+st.markdown('<div class="cartao">', unsafe_allow_html=True)
+st.markdown('<div class="titulo-secao">2. Lógica interna do sistema</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitulo-secao">Os indicadores de validação são calculados automaticamente a partir das entradas fornecidas.</div>', unsafe_allow_html=True)
+
+st.info("Após clicar em “Gerar recomendação”, o sistema calcula automaticamente os indicadores, a pontuação total, o nível de risco e a ação proposta.")
+
+mini1, mini2, mini3 = st.columns(3)
+with mini1:
+    st.markdown('<div class="mini-indicador"><div class="valor">6</div><div class="rotulo">Indicadores internos</div></div>', unsafe_allow_html=True)
+with mini2:
+    st.markdown('<div class="mini-indicador"><div class="valor">3</div><div class="rotulo">Níveis de risco</div></div>', unsafe_allow_html=True)
+with mini3:
+    st.markdown('<div class="mini-indicador"><div class="valor">4</div><div class="rotulo">Ações possíveis</div></div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# -------------------------
+# Entradas e Resultado lado a lado
 # -------------------------
 coluna1, coluna2 = st.columns([1, 1], gap="large")
 
@@ -298,43 +317,44 @@ with coluna1:
     col_a, col_b = st.columns(2)
     with col_a:
         st.markdown('<div class="etiqueta">Posição/Trajetória</div>', unsafe_allow_html=True)
-        posicao = st.selectbox("Posição/Trajetória", ["Normal", "Ligeiramente suspeita", "Muito suspeita"], label_visibility="collapsed")
+        posicao = st.selectbox(
+            "Posição/Trajetória",
+            ["Normal", "Ligeiramente suspeita", "Muito suspeita"],
+            label_visibility="collapsed"
+        )
     with col_b:
         st.markdown('<div class="etiqueta">Velocidade/Curso</div>', unsafe_allow_html=True)
-        velocidade = st.selectbox("Velocidade/Curso", ["Normal", "Ligeiramente suspeito", "Muito suspeito"], label_visibility="collapsed")
+        velocidade = st.selectbox(
+            "Velocidade/Curso",
+            ["Normal", "Ligeiramente suspeito", "Muito suspeito"],
+            label_visibility="collapsed"
+        )
 
     st.markdown("### Outras fontes")
     col_e, col_f = st.columns(2)
     with col_e:
         st.markdown('<div class="etiqueta">Concordância com radar/outras fontes</div>', unsafe_allow_html=True)
-        radar = st.selectbox("Concordância com radar/outras fontes", ["Concordante", "Parcialmente discordante", "Discordante"], label_visibility="collapsed")
+        radar = st.selectbox(
+            "Concordância com radar/outras fontes",
+            ["Concordante", "Parcialmente discordante", "Discordante"],
+            label_visibility="collapsed"
+        )
     with col_f:
         st.markdown('<div class="etiqueta">Contexto operacional</div>', unsafe_allow_html=True)
-        contexto = st.selectbox("Contexto operacional", ["Normal", "Pouco habitual", "Muito suspeito"], label_visibility="collapsed")
+        contexto = st.selectbox(
+            "Contexto operacional",
+            ["Normal", "Pouco habitual", "Muito suspeito"],
+            label_visibility="collapsed"
+        )
 
     gerar = st.button("Gerar recomendação", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-with coluna2:
-    st.markdown('<div class="cartao">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">2. Lógica interna do sistema</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitulo-secao">Os indicadores de validação são calculados automaticamente a partir das entradas fornecidas.</div>', unsafe_allow_html=True)
-
-    st.info("Após clicar em “Gerar recomendação”, o sistema calcula automaticamente os indicadores, a pontuação total, o nível de risco e a ação proposta.")
-
-    mini1, mini2, mini3 = st.columns(3)
-    with mini1:
-        st.markdown('<div class="mini-indicador"><div class="valor">6</div><div class="rotulo">Indicadores internos</div></div>', unsafe_allow_html=True)
-    with mini2:
-        st.markdown('<div class="mini-indicador"><div class="valor">3</div><div class="rotulo">Níveis de risco</div></div>', unsafe_allow_html=True)
-    with mini3:
-        st.markdown('<div class="mini-indicador"><div class="valor">4</div><div class="rotulo">Ações possíveis</div></div>', unsafe_allow_html=True)
-
-    st.markdown('</div>', unsafe_allow_html=True)
-
 # -------------------------
-# Pesos
+# Cálculo prévio para mostrar resultado logo ao lado
 # -------------------------
+indicadores = calcular_indicadores(posicao, velocidade, radar, contexto)
+
 pesos = {
     "I1": 3,
     "I2": 2,
@@ -344,35 +364,30 @@ pesos = {
     "I6": 3
 }
 
-# -------------------------
-# Cálculo e apresentação
-# -------------------------
-if gerar:
-    indicadores = calcular_indicadores(posicao, velocidade, radar, contexto)
+contributos = {}
+pontuacao_total = 0
 
-    contributos = {}
-    pontuacao_total = 0
+for chave, valor in indicadores.items():
+    pontos = nivel_para_pontos(valor)
+    contributo = pontos * pesos[chave]
+    contributos[chave] = {
+        "Código": chave,
+        "Nome": nomes_indicadores[chave],
+        "Nível": valor,
+        "Pontos": pontos,
+        "Peso": pesos[chave],
+        "Contributo": contributo
+    }
+    pontuacao_total += contributo
 
-    for chave, valor in indicadores.items():
-        pontos = nivel_para_pontos(valor)
-        contributo = pontos * pesos[chave]
-        contributos[chave] = {
-            "Código": chave,
-            "Nome": nomes_indicadores[chave],
-            "Nível": valor,
-            "Pontos": pontos,
-            "Peso": pesos[chave],
-            "Contributo": contributo
-        }
-        pontuacao_total += contributo
+risco = nivel_risco(pontuacao_total)
+acao = acao_proposta(pontuacao_total)
+fundo, texto, classe_cartao = cor_risco(risco)
 
-    risco = nivel_risco(pontuacao_total)
-    acao = acao_proposta(pontuacao_total)
-    fundo, texto, classe_cartao = cor_risco(risco)
-
+with coluna2:
     st.markdown(f'<div class="cartao {classe_cartao}">', unsafe_allow_html=True)
     st.markdown('<div class="titulo-secao">3. Resultado do sistema</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitulo-secao">O sistema calcula automaticamente os indicadores, a pontuação total e propõe uma ação inicial.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo-secao">Resultado gerado automaticamente pelo sistema com base nas entradas selecionadas.</div>', unsafe_allow_html=True)
 
     m1, m2, m3 = st.columns(3)
     with m1:
@@ -388,6 +403,10 @@ if gerar:
     )
     st.markdown('</div>', unsafe_allow_html=True)
 
+# -------------------------
+# Mostrar secções seguintes apenas após interação
+# -------------------------
+if gerar:
     ordenados = sorted(contributos.items(), key=lambda x: x[1]["Contributo"], reverse=True)
     fatores_principais = [
         {
