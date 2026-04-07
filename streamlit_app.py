@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 st.set_page_config(
-    page_title="Sistema de Validação da Decisão",
+    page_title="NAVISGUARD",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -272,8 +272,8 @@ with st.sidebar:
 # -------------------------
 st.markdown("""
 <div class="topo-dashboard">
-    <h1>Sistema de Validação da Decisão</h1>
-    <p>Protótipo interativo para demonstrar um sistema de apoio à decisão com recomendação automática e validação humana final.</p>
+    <h1>NAVISGUARD</h1>
+    <p>Sistema de Apoio e Validação da Decisão em Ambiente Marítimo.</p>
 </div>
 """, unsafe_allow_html=True)
 
