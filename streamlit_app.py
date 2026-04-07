@@ -5,7 +5,6 @@ st.set_page_config(page_title="Sistema de Validação da Decisão", layout="wide
 st.title("Sistema de Validação da Decisão")
 st.write("Protótipo simples para demonstrar um sistema de apoio à decisão com validação humana final.")
 
-
 # -------------------------
 # Funções auxiliares
 # -------------------------
@@ -36,89 +35,113 @@ coluna1, coluna2 = st.columns([1, 1])
 
 with coluna1:
     st.subheader("1. Entradas do sistema")
-    st.caption("Nesta secção, o utilizador descreve o caso que pretende analisar, introduzindo os dados disponíveis e o contexto observado.")
+    st.markdown("ℹ️ Nesta secção, o utilizador descreve o caso que pretende analisar, introduzindo os dados disponíveis e o contexto observado.")
 
-    st.markdown("**Dados AIS/VMS**")
+    st.markdown("### Dados AIS/VMS")
 
+    st.markdown("**Posição/Trajetória**")
+    st.markdown("ℹ️ Informação sobre o percurso observado da embarcação. Deve indicar se a trajetória parece normal ou suspeita.")
     posicao = st.selectbox(
-        "Posição/Trajetória",
-        ["Normal", "Ligeiramente suspeita", "Muito suspeita"]
+        "Selecione a avaliação da posição/trajetória",
+        ["Normal", "Ligeiramente suspeita", "Muito suspeita"],
+        label_visibility="collapsed"
     )
-    st.caption("Informação sobre o percurso observado da embarcação. Deve indicar se a trajetória parece normal ou suspeita.")
 
+    st.markdown("**Velocidade/Curso**")
+    st.markdown("ℹ️ Avaliação da coerência da velocidade e da direção da embarcação ao longo do tempo.")
     velocidade = st.selectbox(
-        "Velocidade/Curso",
-        ["Normal", "Ligeiramente suspeito", "Muito suspeito"]
+        "Selecione a avaliação da velocidade/curso",
+        ["Normal", "Ligeiramente suspeito", "Muito suspeito"],
+        label_visibility="collapsed"
     )
-    st.caption("Avaliação da coerência da velocidade e da direção da embarcação ao longo do tempo.")
 
-    st.markdown("**Saídas dos detetores**")
+    st.markdown("### Saídas dos detetores")
 
+    st.markdown("**Nível de alerta do detetor**")
+    st.markdown("ℹ️ Classificação qualitativa do alerta gerado pelo sistema automático. Indica se o caso parece pouco, moderadamente ou muito suspeito.")
     alerta = st.selectbox(
-        "Nível de alerta do detetor",
-        ["Sem alerta", "Alerta moderado", "Alerta elevado"]
+        "Selecione o nível de alerta do detetor",
+        ["Sem alerta", "Alerta moderado", "Alerta elevado"],
+        label_visibility="collapsed"
     )
-    st.caption("Classificação qualitativa do alerta gerado pelo sistema automático. Indica se o caso parece pouco, moderadamente ou muito suspeito.")
 
+    st.markdown("**Pontuação do detetor**")
+    st.markdown("ℹ️ Valor numérico associado ao grau de suspeita identificado pelo detetor. Quanto maior a pontuação, maior a suspeita.")
     pontuacao_detetor = st.slider(
-        "Pontuação do detetor",
-        0, 100, 50
+        "Selecione a pontuação do detetor",
+        0, 100, 50,
+        label_visibility="collapsed"
     )
-    st.caption("Valor numérico associado ao grau de suspeita identificado pelo detetor. Quanto maior a pontuação, maior a suspeita.")
 
-    st.markdown("**Outras fontes**")
+    st.markdown("### Outras fontes")
 
+    st.markdown("**Concordância com radar/outras fontes**")
+    st.markdown("ℹ️ Indica se outras fontes de informação confirmam ou contradizem os dados principais observados.")
     radar = st.selectbox(
-        "Concordância com radar/outras fontes",
-        ["Concordante", "Parcialmente discordante", "Discordante"]
+        "Selecione a concordância com radar/outras fontes",
+        ["Concordante", "Parcialmente discordante", "Discordante"],
+        label_visibility="collapsed"
     )
-    st.caption("Indica se outras fontes de informação confirmam ou contradizem os dados principais observados.")
 
+    st.markdown("**Contexto operacional**")
+    st.markdown("ℹ️ Representa se a situação observada é normal ou invulgar no contexto operacional em análise.")
     contexto = st.selectbox(
-        "Contexto operacional",
-        ["Normal", "Pouco habitual", "Muito suspeito"]
+        "Selecione o contexto operacional",
+        ["Normal", "Pouco habitual", "Muito suspeito"],
+        label_visibility="collapsed"
     )
-    st.caption("Representa se a situação observada é normal ou invulgar no contexto operacional em análise.")
 
 with coluna2:
     st.subheader("2. Indicadores de validação")
-    st.caption("Nesta secção, o utilizador avalia os principais indicadores que ajudam o sistema a interpretar a situação e a propor uma recomendação.")
+    st.markdown("ℹ️ Nesta secção, o utilizador avalia os principais indicadores que ajudam o sistema a interpretar a situação e a propor uma recomendação.")
 
+    st.markdown("**I1 - Anomalia de identidade**")
+    st.markdown("ℹ️ Avalia se existem sinais de inconsistência na identificação da embarcação.")
     i1 = st.selectbox(
-        "I1 - Anomalia de identidade",
-        ["Baixo", "Médio", "Elevado"]
+        "Selecione o nível de I1",
+        ["Baixo", "Médio", "Elevado"],
+        label_visibility="collapsed"
     )
-    st.caption("Avalia se existem sinais de inconsistência na identificação da embarcação.")
 
+    st.markdown("**I2 - Alteração anormal de identidade**")
+    st.markdown("ℹ️ Avalia mudanças inesperadas ou incoerentes nos elementos de identidade.")
     i2 = st.selectbox(
-        "I2 - Alteração anormal de identidade",
-        ["Baixo", "Médio", "Elevado"]
+        "Selecione o nível de I2",
+        ["Baixo", "Médio", "Elevado"],
+        label_visibility="collapsed"
     )
-    st.caption("Avalia mudanças inesperadas ou incoerentes nos elementos de identidade.")
 
+    st.markdown("**I3 - Plausibilidade cinemática**")
+    st.markdown("ℹ️ Verifica se o comportamento do movimento da embarcação é fisicamente plausível.")
     i3 = st.selectbox(
-        "I3 - Plausibilidade cinemática",
-        ["Baixo", "Médio", "Elevado"]
+        "Selecione o nível de I3",
+        ["Baixo", "Médio", "Elevado"],
+        label_visibility="collapsed"
     )
-    st.caption("Verifica se o comportamento do movimento da embarcação é fisicamente plausível.")
 
+    st.markdown("**I4 - Consistência espaço-temporal**")
+    st.markdown("ℹ️ Verifica se a evolução da posição e do tempo faz sentido de forma coerente.")
     i4 = st.selectbox(
-        "I4 - Consistência espaço-temporal",
-        ["Baixo", "Médio", "Elevado"]
+        "Selecione o nível de I4",
+        ["Baixo", "Médio", "Elevado"],
+        label_visibility="collapsed"
     )
-    st.caption("Verifica se a evolução da posição e do tempo faz sentido de forma coerente.")
 
+    st.markdown("**I5 - Consistência contextual**")
+    st.markdown("ℹ️ Analisa se o comportamento observado é coerente com o contexto operacional.")
     i5 = st.selectbox(
-        "I5 - Consistência contextual",
-        ["Baixo", "Médio", "Elevado"]
+        "Selecione o nível de I5",
+        ["Baixo", "Médio", "Elevado"],
+        label_visibility="collapsed"
     )
-    st.caption("Analisa se o comportamento observado é coerente com o contexto operacional.")
 
+    st.markdown("**I6 - Consistência entre fontes**")
+    st.markdown("ℹ️ Avalia se diferentes fontes de informação apresentam uma interpretação consistente do caso.")
     i6 = st.selectbox(
-        "I6 - Consistência entre fontes",
-        ["Baixo", "Médio", "Elevado"]
+        "Selecione o nível de I6",
+        ["Baixo", "Médio", "Elevado"],
+        label_visibility="collapsed"
     )
-    st.caption("Avalia se diferentes fontes de informação apresentam uma interpretação consistente do caso.")
 
 # -------------------------
 # Pesos
@@ -165,20 +188,20 @@ if st.button("Gerar recomendação"):
 
     st.divider()
     st.subheader("3. Resultado do sistema")
-    st.caption("O sistema agrega os indicadores selecionados, calcula uma pontuação total e propõe uma ação inicial.")
+    st.markdown("ℹ️ O sistema agrega os indicadores selecionados, calcula uma pontuação total e propõe uma ação inicial.")
 
     c1, c2, c3 = st.columns(3)
     with c1:
         st.metric("Pontuação total", pontuacao_total)
-        st.caption("Resultado agregado da avaliação dos indicadores.")
+        st.markdown("ℹ️ Resultado agregado da avaliação dos indicadores.")
 
     with c2:
         st.metric("Nível de risco", risco)
-        st.caption("Classificação global do risco com base na pontuação obtida.")
+        st.markdown("ℹ️ Classificação global do risco com base na pontuação obtida.")
 
     with c3:
         st.metric("Ação proposta", acao)
-        st.caption("Recomendação inicial gerada pelo sistema para apoiar a decisão humana.")
+        st.markdown("ℹ️ Recomendação inicial gerada pelo sistema para apoiar a decisão humana.")
 
     if acao == "Escalar":
         st.error(f"Ação recomendada: {acao}")
@@ -188,7 +211,7 @@ if st.button("Gerar recomendação"):
         st.success(f"Ação recomendada: {acao}")
 
     st.subheader("4. Evidência e rastreabilidade")
-    st.caption("Esta secção mostra como a decisão foi construída, indicando os contributos de cada indicador e os principais fatores que influenciaram a recomendação.")
+    st.markdown("ℹ️ Esta secção mostra como a decisão foi construída, indicando os contributos de cada indicador e os principais fatores que influenciaram a recomendação.")
 
     linhas = []
     for indicador, dados in contributos.items():
@@ -222,26 +245,30 @@ if st.button("Gerar recomendação"):
     )
 
     st.subheader("5. Validação humana")
-    st.caption("O utilizador analisa a recomendação do sistema e pode confirmá-la ou alterá-la com base na evidência apresentada.")
+    st.markdown("ℹ️ O utilizador analisa a recomendação do sistema e pode confirmá-la ou alterá-la com base na evidência apresentada.")
 
+    st.markdown("**Decisão final do utilizador**")
+    st.markdown("ℹ️ Permite ao utilizador confirmar ou alterar a recomendação proposta pelo sistema.")
     decisao_utilizador = st.selectbox(
-        "Decisão final do utilizador",
-        ["Confirmar ação proposta", "Ignorar", "Monitorizar", "Escalar", "Requer revisão"]
+        "Selecione a decisão final do utilizador",
+        ["Confirmar ação proposta", "Ignorar", "Monitorizar", "Escalar", "Requer revisão"],
+        label_visibility="collapsed"
     )
-    st.caption("Permite ao utilizador confirmar ou alterar a recomendação proposta pelo sistema.")
 
+    st.markdown("**Justificação da decisão final**")
+    st.markdown("ℹ️ Campo destinado à justificação da decisão final tomada pelo utilizador.")
     justificacao = st.text_area(
-        "Justificação da decisão final",
-        placeholder="Explica por que motivo confirmas ou alteras a ação proposta..."
+        "Introduza a justificação da decisão final",
+        placeholder="Explica por que motivo confirmas ou alteras a ação proposta...",
+        label_visibility="collapsed"
     )
-    st.caption("Campo destinado à justificação da decisão final tomada pelo utilizador.")
 
     if st.button("Guardar decisão final"):
         decisao_final = acao if decisao_utilizador == "Confirmar ação proposta" else decisao_utilizador
 
         st.divider()
         st.subheader("6. Decisão final justificada")
-        st.caption("Nesta secção é apresentado o registo final da decisão, incluindo a recomendação do sistema, a decisão do utilizador e a respetiva justificação.")
+        st.markdown("ℹ️ Nesta secção é apresentado o registo final da decisão, incluindo a recomendação do sistema, a decisão do utilizador e a respetiva justificação.")
 
         st.write(f"**Ação proposta pelo sistema:** {acao}")
         st.write(f"**Decisão final do utilizador:** {decisao_final}")
