@@ -33,7 +33,7 @@ st.markdown("""
     .topo-dashboard p {
         margin-top: 8px;
         font-size: 1rem;
-        color: #dbeafe;
+        color: #eef4ff;
     }
 
     .cartao {
@@ -46,7 +46,7 @@ st.markdown("""
     }
 
     .cartao-azul {
-        background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+        background: linear-gradient(180deg, #eff6ff 0%, #eef4ff 100%);
         border: 1px solid #bfdbfe;
     }
 
@@ -298,7 +298,7 @@ mini1, mini2, mini3 = st.columns(3)
 
 with mini1:
     st.markdown("""
-    <div class="mini-indicador" style="background: linear-gradient(180deg,#eff6ff,#dbeafe); border:1px solid #bfdbfe;">
+    <div class="mini-indicador" style="background: linear-gradient(180deg,#eff6ff,#eef4ff); border:1px solid #bfdbfe;">
         <div class="valor">6</div>
         <div class="rotulo">Indicadores internos</div>
     </div>
