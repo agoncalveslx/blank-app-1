@@ -297,34 +297,52 @@ st.info("Após clicar em “Gerar recomendação”, o sistema calcula automatic
 mini1, mini2, mini3 = st.columns(3)
 
 with mini1:
-    st.markdown('<div class="mini-indicador"><div class="valor">6</div><div class="rotulo">Indicadores internos</div></div>', unsafe_allow_html=True)
-    with st.expander("Consultar indicadores"):
-        st.write("""
-        I1 — Identidade  
-        I2 — Alteração de identidade  
-        I3 — Cinemática  
-        I4 — Consistência espaço-temporal  
-        I5 — Contexto operacional  
-        I6 — Consistência entre fontes
+    st.markdown("""
+    <div class="mini-indicador" style="background: linear-gradient(180deg,#eff6ff,#dbeafe); border:1px solid #bfdbfe;">
+        <div class="valor">6</div>
+        <div class="rotulo">Indicadores internos</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.expander("Ver indicadores"):
+        st.markdown("""
+        **I1** — Identidade  
+        **I2** — Alteração de identidade  
+        **I3** — Cinemática  
+        **I4** — Consistência espaço-temporal  
+        **I5** — Contexto operacional  
+        **I6** — Consistência entre fontes  
         """)
 
 with mini2:
-    st.markdown('<div class="mini-indicador"><div class="valor">3</div><div class="rotulo">Níveis de risco</div></div>', unsafe_allow_html=True)
-    with st.expander("Consultar níveis de risco"):
-        st.write("""
-        Baixo — sem impacto  
-        Médio — atenção  
-        Elevado — prioridade
+    st.markdown("""
+    <div class="mini-indicador">
+        <div class="valor">3</div>
+        <div class="rotulo">Níveis de risco</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.expander("Ver níveis de risco"):
+        st.markdown("""
+        **Baixo** — sem impacto  
+        **Médio** — atenção  
+        **Elevado** — prioridade  
         """)
 
 with mini3:
-    st.markdown('<div class="mini-indicador"><div class="valor">4</div><div class="rotulo">Ações possíveis</div></div>', unsafe_allow_html=True)
-    with st.expander("Consultar ações"):
-        st.write("""
-        Ignorar — sem ação  
-        Monitorizar — vigilância  
-        Escalar — intervenção  
-        Rever — análise adicional
+    st.markdown("""
+    <div class="mini-indicador">
+        <div class="valor">4</div>
+        <div class="rotulo">Ações possíveis</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    with st.expander("Ver ações"):
+        st.markdown("""
+        **Ignorar** — sem ação  
+        **Monitorizar** — vigilância  
+        **Escalar** — intervenção  
+        **Rever** — análise adicional  
         """)
 
 st.markdown('</div>', unsafe_allow_html=True)
