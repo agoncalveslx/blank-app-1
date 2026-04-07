@@ -5,6 +5,7 @@ st.set_page_config(page_title="Sistema de Validação da Decisão", layout="wide
 st.title("Sistema de Validação da Decisão")
 st.write("Protótipo simples para demonstrar um sistema de apoio à decisão com validação humana final.")
 
+
 # -------------------------
 # Funções auxiliares
 # -------------------------
