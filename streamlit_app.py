@@ -279,19 +279,11 @@ st.markdown("""
 
 with st.expander("Contexto Operacional"):
     st.write("""
-    Este sistema simula uma plataforma de apoio à decisão em ambiente marítimo, 
-    baseada na análise de dados AIS/VMS e de fontes contextuais adicionais.
+Sistema de apoio à decisão em ambiente marítimo.
 
-    A partir das entradas fornecidas, o sistema processa automaticamente um conjunto 
-    de indicadores de validação, avaliando a consistência, plausibilidade e coerência 
-    da informação disponível.
-
-    Com base nessa análise, é gerada uma recomendação operacional, acompanhada de 
-    uma explicação dos fatores que mais contribuíram para a decisão.
-
-    A decisão final é sempre validada por um operador humano, garantindo controlo, 
-    rastreabilidade e confiança no processo de tomada de decisão.
-    """)
+Analisa dados AIS/VMS e fontes complementares, gera uma recomendação
+e submete a decisão final a validação humana.
+""")
 
 # -------------------------
 # Lógica interna do sistema
