@@ -225,6 +225,15 @@ def impacto_textual(contributo):
         return "Reduzido"
     return "Muito reduzido"
 
+def impacto_num(contributo):
+    if contributo >= 5:
+        return 3
+    elif contributo >= 2:
+        return 2
+    elif contributo >= 1:
+        return 1
+    return 0
+
 nomes_indicadores = {
     "I1": "Anomalia de identidade",
     "I2": "Alteração anormal de identidade",
@@ -483,7 +492,7 @@ with coluna2:
         st.markdown('</div>', unsafe_allow_html=True)
 
 # -------------------------
-# Secções seguintes
+# Secções seguintes: avaliação + validação lado a lado
 # -------------------------
 if st.session_state.resultado_gerado and st.session_state.dados_resultado is not None and not resultado_em_reserva:
     dados = st.session_state.dados_resultado
@@ -503,70 +512,74 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
         for item in ordenados[:3]
     ]
 
-    st.markdown('<div class="cartao">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">4. Avaliação Operacional</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitulo-secao">Síntese dos fatores críticos, quadro de situação e impacto na recomendação.</div>', unsafe_allow_html=True)
+    col_avaliacao, col_validacao = st.columns([1, 1], gap="large")
 
-    st.info("BRIEFING OPERACIONAL")
-    st.markdown("**Estado:** Avaliação concluída")
+    with col_avaliacao:
+        st.markdown('<div class="cartao">', unsafe_allow_html=True)
+        st.markdown('<div class="titulo-secao">4. Avaliação Operacional</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtitulo-secao">Síntese dos fatores críticos, quadro de situação e impacto na recomendação.</div>', unsafe_allow_html=True)
 
-    st.markdown("**Fatores críticos:**")
-    for fator in fatores_principais:
-        st.write(f"• {fator['nome']}")
+        st.info("BRIEFING OPERACIONAL")
+        st.markdown("**Estado:** Avaliação concluída")
 
-    st.markdown(
-        f"**Avaliação:** Situação classificada com risco **{risco.lower()}** devido à combinação dos fatores críticos identificados."
-    )
-
-    col_resumo1, col_resumo2 = st.columns(2)
-
-    with col_resumo1:
-        st.markdown("#### Fatores críticos")
+        st.markdown("**Fatores críticos:**")
         for fator in fatores_principais:
-            st.write(f"• **{fator['nome']}** ({fator['codigo']}) — estado **{fator['nivel']}**")
+            st.write(f"• {fator['nome']}")
 
-    with col_resumo2:
+        st.markdown(
+            f"**Avaliação:** Situação classificada com risco **{risco.lower()}** devido à combinação dos fatores críticos identificados."
+        )
+
         st.markdown("#### Quadro de situação")
         st.write(f"**Posição/Trajetória:** {dados['posicao']}")
         st.write(f"**Velocidade/Curso:** {dados['velocidade']}")
         st.write(f"**Concordância entre fontes:** {dados['radar']}")
         st.write(f"**Contexto operacional:** {dados['contexto']}")
 
-    st.markdown("#### Quadro de indicadores")
-    tabela = pd.DataFrame([
-        {
-            "Código": info["Código"],
-            "Parâmetro": info["Nome"],
-            "Estado": info["Nível"],
-            "Impacto operacional": impacto_textual(info["Contributo"])
-        }
-        for _, info in contributos.items()
-    ])
-    st.dataframe(tabela, use_container_width=True, hide_index=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="cartao cartao-azul">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">5. Validação humana</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitulo-secao">O utilizador pode confirmar ou alterar a recomendação automática com justificação.</div>', unsafe_allow_html=True)
+    with col_validacao:
+        st.markdown('<div class="cartao cartao-azul">', unsafe_allow_html=True)
+        st.markdown('<div class="titulo-secao">5. Validação humana</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtitulo-secao">O utilizador pode confirmar ou alterar a recomendação automática com justificação.</div>', unsafe_allow_html=True)
 
-    col_v1, col_v2 = st.columns([1, 2])
-
-    with col_v1:
         decisao_utilizador = st.selectbox(
             "Decisão final do utilizador",
             ["Confirmar ação proposta", "Ignorar", "Monitorizar", "Escalar", "Requer revisão"]
         )
 
-    with col_v2:
         justificacao = st.text_area(
             "Justificação da decisão final",
             placeholder="Explica por que motivo confirmas ou alteras a ação proposta...",
-            height=120
+            height=220
         )
 
-    guardar = st.button("Guardar decisão final", use_container_width=True)
+        guardar = st.button("Guardar decisão final", use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # -------------------------
+    # Gráfico de indicadores
+    # -------------------------
+    st.markdown('<div class="cartao">', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">Quadro de indicadores</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo-secao">Visualização compacta do impacto operacional dos indicadores.</div>', unsafe_allow_html=True)
+
+    grafico_df = pd.DataFrame([
+        {
+            "Indicador": f"{info['Código']} — {info['Nome']}",
+            "Impacto": impacto_num(info["Contributo"])
+        }
+        for _, info in contributos.items()
+    ])
+
+    st.bar_chart(grafico_df.set_index("Indicador"), horizontal=True)
+
+    st.caption("Escala do impacto: 0 = Muito reduzido | 1 = Reduzido | 2 = Moderado | 3 = Elevado")
     st.markdown('</div>', unsafe_allow_html=True)
 
+    # -------------------------
+    # Decisão final
+    # -------------------------
     if guardar:
         decisao_final = acao if decisao_utilizador == "Confirmar ação proposta" else decisao_utilizador
 
