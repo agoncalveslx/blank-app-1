@@ -516,12 +516,12 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
     if len(fatores_principais) >= 3:
         fatores_texto += f" e {fatores_principais[2]['nome']}"
 
-   resumo_operacional = f"""
-**Recomendação emitida:** {acao.upper()}  
-**Nível de risco:** {risco.upper()}  
-**Pontuação total:** {pontuacao_total}  
-**Fatores críticos:** {fatores_texto}.
-"""
+    resumo_operacional = f"""
+    **Recomendação emitida:** {acao.upper()}  
+    **Nível de risco:** {risco.upper()}  
+    **Pontuação total:** {pontuacao_total}  
+    **Fatores críticos:** {fatores_texto}.
+    """
     st.markdown(f'<div class="caixa-explicacao">{resumo_operacional}</div>', unsafe_allow_html=True)
     
 
