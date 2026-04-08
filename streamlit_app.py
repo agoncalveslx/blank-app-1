@@ -8,6 +8,15 @@ st.set_page_config(
 )
 
 # -------------------------
+# Estado da sessão
+# -------------------------
+if "resultado_gerado" not in st.session_state:
+    st.session_state.resultado_gerado = False
+
+if "dados_resultado" not in st.session_state:
+    st.session_state.dados_resultado = None
+
+# -------------------------
 # Estilo visual
 # -------------------------
 st.markdown("""
@@ -250,6 +259,15 @@ nomes_indicadores = {
     "I6": "Consistência entre fontes"
 }
 
+pesos = {
+    "I1": 3,
+    "I2": 2,
+    "I3": 2,
+    "I4": 2,
+    "I5": 1,
+    "I6": 3
+}
+
 # -------------------------
 # Barra lateral
 # -------------------------
@@ -286,7 +304,7 @@ e submete a decisão final a validação humana.
 """)
 
 # -------------------------
-# Lógica interna do sistema
+# Processamento operacional
 # -------------------------
 st.markdown('<div class="cartao">', unsafe_allow_html=True)
 st.markdown('<div class="titulo-secao">Processamento Operacional</div>', unsafe_allow_html=True)
@@ -303,7 +321,6 @@ with mini1:
         <div class="rotulo">Indicadores internos</div>
     </div>
     """, unsafe_allow_html=True)
-
     with st.expander("Ver indicadores"):
         st.markdown("""
         **I1** — Identidade  
@@ -321,7 +338,6 @@ with mini2:
         <div class="rotulo">Níveis de risco</div>
     </div>
     """, unsafe_allow_html=True)
-
     with st.expander("Ver níveis de risco"):
         st.markdown("""
         **Baixo** — sem impacto  
@@ -336,7 +352,6 @@ with mini3:
         <div class="rotulo">Ações possíveis</div>
     </div>
     """, unsafe_allow_html=True)
-
     with st.expander("Ver ações"):
         st.markdown("""
         **Ignorar** — sem ação  
@@ -394,63 +409,83 @@ with coluna1:
     gerar = st.button("Gerar recomendação", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# -------------------------
-# Cálculo prévio para mostrar resultado logo ao lado
-# -------------------------
-indicadores = calcular_indicadores(posicao, velocidade, radar, contexto)
+    if gerar:
+        indicadores = calcular_indicadores(posicao, velocidade, radar, contexto)
 
-pesos = {
-    "I1": 3,
-    "I2": 2,
-    "I3": 2,
-    "I4": 2,
-    "I5": 1,
-    "I6": 3
-}
+        contributos = {}
+        pontuacao_total = 0
 
-contributos = {}
-pontuacao_total = 0
+        for chave, valor in indicadores.items():
+            pontos = nivel_para_pontos(valor)
+            contributo = pontos * pesos[chave]
+            contributos[chave] = {
+                "Código": chave,
+                "Nome": nomes_indicadores[chave],
+                "Nível": valor,
+                "Pontos": pontos,
+                "Peso": pesos[chave],
+                "Contributo": contributo
+            }
+            pontuacao_total += contributo
 
-for chave, valor in indicadores.items():
-    pontos = nivel_para_pontos(valor)
-    contributo = pontos * pesos[chave]
-    contributos[chave] = {
-        "Código": chave,
-        "Nome": nomes_indicadores[chave],
-        "Nível": valor,
-        "Pontos": pontos,
-        "Peso": pesos[chave],
-        "Contributo": contributo
-    }
-    pontuacao_total += contributo
+        risco = nivel_risco(pontuacao_total)
+        acao = acao_proposta(pontuacao_total)
 
-risco = nivel_risco(pontuacao_total)
-acao = acao_proposta(pontuacao_total)
-fundo, texto, classe_cartao = cor_risco(risco)
+        st.session_state.dados_resultado = {
+            "posicao": posicao,
+            "velocidade": velocidade,
+            "radar": radar,
+            "contexto": contexto,
+            "indicadores": indicadores,
+            "contributos": contributos,
+            "pontuacao_total": pontuacao_total,
+            "risco": risco,
+            "acao": acao
+        }
+        st.session_state.resultado_gerado = True
 
 with coluna2:
-    st.markdown(f'<div class="cartao {classe_cartao}">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">Resultado do sistema</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitulo-secao">Resultado gerado automaticamente pelo sistema com base nas entradas selecionadas.</div>', unsafe_allow_html=True)
+    if st.session_state.resultado_gerado and st.session_state.dados_resultado is not None:
+        dados = st.session_state.dados_resultado
+        pontuacao_total = dados["pontuacao_total"]
+        risco = dados["risco"]
+        acao = dados["acao"]
+        fundo, texto, classe_cartao = cor_risco(risco)
 
-    m1, m2, m3 = st.columns(3)
-    with m1:
-        st.metric("Pontuação total", pontuacao_total)
-    with m2:
-        st.metric("Nível de risco", risco)
-    with m3:
-        st.metric("Ação proposta", acao)
+        st.markdown(f'<div class="cartao {classe_cartao}">', unsafe_allow_html=True)
+        st.markdown('<div class="titulo-secao">Resultado do sistema</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtitulo-secao">Resultado gerado automaticamente pelo sistema com base nas entradas submetidas.</div>', unsafe_allow_html=True)
 
-    st.markdown(
-        f'<div class="acao-final" style="background-color:{fundo}; color:{texto};">Ação recomendada: {acao}</div>',
-        unsafe_allow_html=True
-    )
-    st.markdown('</div>', unsafe_allow_html=True)
+        m1, m2, m3 = st.columns(3)
+        with m1:
+            st.metric("Pontuação total", pontuacao_total)
+        with m2:
+            st.metric("Nível de risco", risco)
+        with m3:
+            st.metric("Ação proposta", acao)
+
+        st.markdown(
+            f'<div class="acao-final" style="background-color:{fundo}; color:{texto};">Ação recomendada: {acao}</div>',
+            unsafe_allow_html=True
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.markdown('<div class="cartao">', unsafe_allow_html=True)
+        st.markdown('<div class="titulo-secao">Resultado do sistema</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtitulo-secao">Aguardando processamento operacional.</div>', unsafe_allow_html=True)
+        st.info("Introduza os dados do caso e clique em “Gerar recomendação”.")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # -------------------------
-# Mostrar secções seguintes apenas após interação
+# Secções seguintes apenas após geração
 # -------------------------
-if gerar:
+if st.session_state.resultado_gerado and st.session_state.dados_resultado is not None:
+    dados = st.session_state.dados_resultado
+    contributos = dados["contributos"]
+    pontuacao_total = dados["pontuacao_total"]
+    risco = dados["risco"]
+    acao = dados["acao"]
+
     ordenados = sorted(contributos.items(), key=lambda x: x[1]["Contributo"], reverse=True)
     fatores_principais = [
         {
@@ -477,20 +512,20 @@ if gerar:
             st.write(f"• **{fator['nome']}** ({fator['codigo']}) — nível **{fator['nivel']}**")
     with col_resumo2:
         st.markdown("#### Resumo das entradas")
-        st.write(f"**Posição/Trajetória:** {posicao}")
-        st.write(f"**Velocidade/Curso:** {velocidade}")
-        st.write(f"**Concordância com radar/outras fontes:** {radar}")
-        st.write(f"**Contexto operacional:** {contexto}")
+        st.write(f"**Posição/Trajetória:** {dados['posicao']}")
+        st.write(f"**Velocidade/Curso:** {dados['velocidade']}")
+        st.write(f"**Concordância com radar/outras fontes:** {dados['radar']}")
+        st.write(f"**Contexto operacional:** {dados['contexto']}")
 
     st.markdown("#### Detalhe técnico dos indicadores")
     tabela = pd.DataFrame([
         {
-            "Código": dados["Código"],
-            "Indicador": dados["Nome"],
-            "Nível atribuído": dados["Nível"],
-            "Impacto na decisão": impacto_textual(dados["Contributo"])
+            "Código": info["Código"],
+            "Indicador": info["Nome"],
+            "Nível atribuído": info["Nível"],
+            "Impacto na decisão": impacto_textual(info["Contributo"])
         }
-        for _, dados in contributos.items()
+        for _, info in contributos.items()
     ])
     st.dataframe(tabela, use_container_width=True, hide_index=True)
     st.markdown('</div>', unsafe_allow_html=True)
