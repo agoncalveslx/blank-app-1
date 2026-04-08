@@ -572,7 +572,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
     ]
 
     for i in range(0, len(pares), 2):
-        col_a, col_b = st.columns(2, gap="large")
+        col_a, col_b = st.columns(2, gap="small")
 
         codigo_a, info_a = pares[i]
         with col_a:
