@@ -590,6 +590,26 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
             </div>
             """, unsafe_allow_html=True)
 
+    with st.expander("Ver regra de cálculo"):
+        st.markdown("""
+        **Estados dos indicadores**
+        - **Baixo** = 0 pontos
+        - **Médio** = 1 ponto
+        - **Elevado** = 2 pontos
+
+        **Pesos dos indicadores**
+        - **I1** = 3
+        - **I2** = 2
+        - **I3** = 2
+        - **I4** = 2
+        - **I5** = 1
+        - **I6** = 3
+
+        **Fórmula de cálculo**
+        - **Contributo do indicador = pontos do estado × peso**
+        - **Pontuação final = soma dos contributos de todos os indicadores**
+        """)
+
     st.markdown('</div>', unsafe_allow_html=True)
 
     # -------------------------
