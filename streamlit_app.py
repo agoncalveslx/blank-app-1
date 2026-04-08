@@ -124,13 +124,7 @@ st.markdown("""
         color: #64748b;
     }
 
-    .bloco-lateral {
-        background: white;
-        padding: 16px;
-        border-radius: 16px;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-    }
+    
 </style>
 """, unsafe_allow_html=True)
 
@@ -295,7 +289,7 @@ with mini1:
         **I2** — Alteração de identidade  
         **I3** — Cinemática  
         **I4** — Consistência espaço-temporal  
-        **I5** — Enquadramento operacional  
+        **I5** — Contexto operacional  
         **I6** — Consistência entre fontes  
         """)
 
