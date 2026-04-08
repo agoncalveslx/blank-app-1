@@ -311,7 +311,7 @@ with mini1:
         **I2** — Alteração de identidade  
         **I3** — Cinemática  
         **I4** — Consistência espaço-temporal  
-        **I5** — Contexto operacional  
+        **I5** — Enquadramento Operacional 
         **I6** — Consistência entre fontes  
         """)
 
