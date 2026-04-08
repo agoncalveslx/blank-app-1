@@ -556,7 +556,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
     </div>
 
     </div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
     
     #resumo_operacional = f"""
     #Recomendação emitida: {acao.upper()}  
