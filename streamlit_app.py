@@ -4,7 +4,7 @@ import pandas as pd
 st.set_page_config(
     page_title="NAVISGUARD",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # -------------------------
@@ -252,22 +252,6 @@ pesos = {
     "I6": 3
 }
 
-# -------------------------
-# Barra lateral
-# -------------------------
-with st.sidebar:
-    st.markdown('<div class="bloco-lateral">', unsafe_allow_html=True)
-    st.markdown("### Navegação")
-    st.write("1. Processamento Operacional")
-    st.write("2. Entradas do sistema")
-    st.write("3. Resultado do sistema")
-    st.write("4. Avaliação Tática")
-    st.write("5. Confirmação do operador")
-    st.write("6. Decisão final")
-    st.markdown("---")
-    st.markdown("### Missão")
-    st.write("Apoiar a validação operacional de casos marítimos com recomendação automática e decisão final sob controlo humano.")
-    st.markdown('</div>', unsafe_allow_html=True)
 
 # -------------------------
 # Cabeçalho
