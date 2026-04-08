@@ -512,25 +512,45 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
         for item in ordenados[:3]
     ]
 
-    fatores_texto = ", ".join([f["nome"] for f in fatores_principais[:2]])
-    if len(fatores_principais) >= 3:
-        fatores_texto += f" e {fatores_principais[2]['nome']}"
-  
-    
-    resumo_operacional = f"""
-    Recomendação emitida: {acao.upper()}  
-    Nível de risco: {risco.upper()}  
-    Pontuação total: {pontuacao_total}  
-    Fatores críticos: {fatores_texto}.
-    """
-    #st.markdown(f'<div class="caixa-explicacao">{resumo_operacional}</div>', unsafe_allow_html=True)
-  
-
     st.markdown('<div class="cartao">', unsafe_allow_html=True)
     st.markdown('<div class="titulo-secao">4. Avaliação Operacional</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitulo-secao">Síntese dos fatores críticos, quadro de situação e impacto na recomendação.</div>', unsafe_allow_html=True)
 
-    st.markdown(f'<div class="caixa-explicacao">{resumo_operacional}</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div style="
+        background:#0f172a;
+        color:#e5e7eb;
+        padding:18px;
+        border-radius:14px;
+        border-left:6px solid #22c55e;
+        margin-bottom:15px;
+    ">
+        <div style="font-weight:700; font-size:1.05rem; margin-bottom:10px;">
+            BRIEFING OPERACIONAL
+        </div>
+
+        <div style="margin-bottom:8px;">
+            <span style="color:#94a3b8;">Estado:</span> Avaliação concluída
+        </div>
+
+        <div style="margin-bottom:10px;">
+            <span style="color:#94a3b8;">Fatores críticos:</span><br>
+            • {fatores_principais[0]['nome']}<br>
+            • {fatores_principais[1]['nome']}<br>
+            • {fatores_principais[2]['nome']}
+        </div>
+
+        <div style="
+            margin-top:10px;
+            padding:10px;
+            background:#111827;
+            border-radius:10px;
+            border:1px solid #374151;
+        ">
+            <span style="color:#94a3b8;">Avaliação:</span> Situação classificada com risco {risco.lower()} devido à combinação dos fatores críticos identificados.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
     col_resumo1, col_resumo2 = st.columns(2)
 
