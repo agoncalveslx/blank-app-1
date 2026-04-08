@@ -265,6 +265,15 @@ pesos = {
     "I6": 3
 }
 
+fontes_indicadores = {
+    "I1": "calculado a partir de Posição/Trajetória",
+    "I2": "calculado a partir de Posição/Trajetória + Concordância com radar/outras fontes",
+    "I3": "calculado a partir de Velocidade/Curso",
+    "I4": "calculado a partir de Posição/Trajetória + Velocidade/Curso",
+    "I5": "calculado a partir de Contexto operacional",
+    "I6": "calculado a partir de Concordância com radar/outras fontes"
+}
+
 # -------------------------
 # Cabeçalho
 # -------------------------
@@ -303,12 +312,12 @@ with mini1:
     """, unsafe_allow_html=True)
     with st.expander("Ver indicadores"):
         st.markdown("""
-        **I1** — Identidade  
-        **I2** — Alteração de identidade  
-        **I3** — Cinemática  
-        **I4** — Consistência espaço-temporal  
-        **I5** — Contexto operacional  
-        **I6** — Consistência entre fontes  
+        **I1 — Identidade** *(calculado a partir de Posição/Trajetória)*  
+        **I2 — Alteração de identidade** *(calculado a partir de Posição/Trajetória + Concordância com radar/outras fontes)*  
+        **I3 — Cinemática** *(calculado a partir de Velocidade/Curso)*  
+        **I4 — Consistência espaço-temporal** *(calculado a partir de Posição/Trajetória + Velocidade/Curso)*  
+        **I5 — Contexto operacional** *(calculado a partir de Contexto operacional)*  
+        **I6 — Consistência entre fontes** *(calculado a partir de Concordância com radar/outras fontes)*  
         """)
 
 with mini2:
@@ -592,6 +601,14 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
 
     with st.expander("Ver regra de cálculo"):
         st.markdown("""
+        **Origem dos indicadores**
+        - **I1** = calculado a partir de **Posição/Trajetória**
+        - **I2** = calculado a partir de **Posição/Trajetória + Concordância com radar/outras fontes**
+        - **I3** = calculado a partir de **Velocidade/Curso**
+        - **I4** = calculado a partir de **Posição/Trajetória + Velocidade/Curso**
+        - **I5** = calculado a partir de **Contexto operacional**
+        - **I6** = calculado a partir de **Concordância com radar/outras fontes**
+
         **Estados dos indicadores**
         - **Baixo** = 0 pontos
         - **Médio** = 1 ponto
