@@ -225,15 +225,6 @@ def impacto_textual(contributo):
         return "Reduzido"
     return "Muito reduzido"
 
-def impacto_num(contributo):
-    if contributo >= 5:
-        return 3
-    elif contributo >= 2:
-        return 2
-    elif contributo >= 1:
-        return 1
-    return 0
-
 nomes_indicadores = {
     "I1": "Anomalia de identidade",
     "I2": "Alteração anormal de identidade",
@@ -567,23 +558,40 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
         st.markdown('</div>', unsafe_allow_html=True)
 
     # -------------------------
-    # Quadro de indicadores compacto
+    # Quadro de indicadores em duas colunas
     # -------------------------
     st.markdown('<div class="cartao">', unsafe_allow_html=True)
     st.markdown('<div class="titulo-secao">Quadro de indicadores</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitulo-secao">Visualização compacta do estado e impacto operacional de cada indicador.</div>', unsafe_allow_html=True)
 
-    for _, info in contributos.items():
-        impacto = impacto_num(info["Contributo"])
-        barra = "█" * impacto + "░" * (3 - impacto)
+    pares = [
+        ("I1", contributos["I1"]),
+        ("I2", contributos["I2"]),
+        ("I3", contributos["I3"]),
+        ("I4", contributos["I4"]),
+        ("I5", contributos["I5"]),
+        ("I6", contributos["I6"])
+    ]
 
-        st.markdown(
-            f"**{info['Código']} — {siglas_indicadores[info['Código']]}**  \n"
-            f"Estado: **{info['Nível']}** | Impacto: **{impacto_textual(info['Contributo'])}**  \n"
-            f"`{barra}`"
-        )
+    for i in range(0, len(pares), 2):
+        col_a, col_b = st.columns(2, gap="large")
 
-    st.caption("Escala visual: 0 = Muito reduzido | 1 = Reduzido | 2 = Moderado | 3 = Elevado")
+        codigo_a, info_a = pares[i]
+        with col_a:
+            st.markdown(
+                f"**{codigo_a} — {siglas_indicadores[codigo_a]}**  \n"
+                f"Estado: **{info_a['Nível']}**  \n"
+                f"Impacto operacional: **{impacto_textual(info_a['Contributo'])}**"
+            )
+
+        codigo_b, info_b = pares[i + 1]
+        with col_b:
+            st.markdown(
+                f"**{codigo_b} — {siglas_indicadores[codigo_b]}**  \n"
+                f"Estado: **{info_b['Nível']}**  \n"
+                f"Impacto operacional: **{impacto_textual(info_b['Contributo'])}**"
+            )
+
     st.markdown('</div>', unsafe_allow_html=True)
 
     # -------------------------
