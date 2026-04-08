@@ -573,7 +573,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
 
     for i in range(0, len(pares), 2):
         #col_a, col_b = st.columns([1, 1], gap="small")
-        col_a, col_b, _ = st.columns([0.9, 0.9, 0.2])
+        col_a, col_b, _ = st.columns([0.9, 0.9, 0.2], gap="small")
 
         codigo_a, info_a = pares[i]
         with col_a:
