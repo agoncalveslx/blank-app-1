@@ -311,7 +311,7 @@ with mini1:
         **I2** — Alteração de identidade  
         **I3** — Cinemática  
         **I4** — Consistência espaço-temporal  
-        **I5** — Enquadramento Operacional 
+        **I5** — Enquadramento operacional  
         **I6** — Consistência entre fontes  
         """)
 
@@ -517,7 +517,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
     with col_avaliacao:
         st.markdown('<div class="cartao">', unsafe_allow_html=True)
         st.markdown('<div class="titulo-secao">4. Avaliação Tática</div>', unsafe_allow_html=True)
-        st.markdown('<div class="subtitulo-secao">Síntese dos fatores críticos, situação tática e impacto na recomendação.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtitulo-secao">Síntese dos fatores críticos e impacto na recomendação.</div>', unsafe_allow_html=True)
 
         st.info("BRIEFING OPERACIONAL")
         st.markdown("**Estado:** Avaliação concluída")
@@ -526,15 +526,13 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
         for fator in fatores_principais:
             st.write(f"• {fator['nome']}")
 
+        st.markdown("#### Avaliação de risco")
+        st.write(f"**Nível de risco:** {risco}")
+        st.write(f"**Ação proposta:** {acao}")
+
         st.markdown(
             f"**Avaliação:** Situação classificada com risco **{risco.lower()}** devido à combinação dos fatores críticos identificados."
         )
-
-        st.markdown("#### Situação tática")
-        st.write(f"**Posição/Trajetória:** {dados['posicao']}")
-        st.write(f"**Velocidade/Curso:** {dados['velocidade']}")
-        st.write(f"**Concordância entre fontes:** {dados['radar']}")
-        st.write(f"**Contexto operacional:** {dados['contexto']}")
 
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -562,7 +560,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
     # -------------------------
     st.markdown('<div class="cartao">', unsafe_allow_html=True)
     st.markdown('<div class="titulo-secao">Quadro de indicadores</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitulo-secao">Visualização compacta do estado e impacto operacional de cada indicador.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo-secao">Visualização compacta do estado e impacto na decisão de cada indicador.</div>', unsafe_allow_html=True)
 
     pares = [
         ("I1", contributos["I1"]),
@@ -581,7 +579,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
             st.markdown(
                 f"**{codigo_a} — {siglas_indicadores[codigo_a]}**  \n"
                 f"Estado: **{info_a['Nível']}**  \n"
-                f"Impacto operacional: **{impacto_textual(info_a['Contributo'])}**"
+                f"Impacto na decisão: **{impacto_textual(info_a['Contributo'])}**"
             )
 
         codigo_b, info_b = pares[i + 1]
@@ -589,7 +587,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
             st.markdown(
                 f"**{codigo_b} — {siglas_indicadores[codigo_b]}**  \n"
                 f"Estado: **{info_b['Nível']}**  \n"
-                f"Impacto operacional: **{impacto_textual(info_b['Contributo'])}**"
+                f"Impacto na decisão: **{impacto_textual(info_b['Contributo'])}**"
             )
 
     st.markdown('</div>', unsafe_allow_html=True)
