@@ -234,22 +234,6 @@ def impacto_textual(contributo):
         return "Reduzido"
     return "Muito reduzido"
 
-def gerar_explicacao_decisao(acao, risco, pontuacao_total, fatores):
-    nomes = [f["nome"] for f in fatores[:3]]
-
-    if len(nomes) == 1:
-        fatores_texto = nomes[0]
-    elif len(nomes) == 2:
-        fatores_texto = f"{nomes[0]} e {nomes[1]}"
-    else:
-        fatores_texto = f"{nomes[0]}, {nomes[1]} e {nomes[2]}"
-
-    return (
-        f"A recomendação de **{acao.lower()}** foi gerada porque a pontuação total foi "
-        f"**{pontuacao_total}**, correspondendo a um nível de risco **{risco.lower()}**. "
-        f"Os fatores que mais contribuíram para esta decisão foram **{fatores_texto}**."
-    )
-
 nomes_indicadores = {
     "I1": "Anomalia de identidade",
     "I2": "Alteração anormal de identidade",
@@ -277,7 +261,7 @@ with st.sidebar:
     st.write("1. Processamento Operacional")
     st.write("2. Entradas do sistema")
     st.write("3. Resultado do sistema")
-    st.write("4. Explicação da decisão")
+    st.write("4. Avaliação Operacional")
     st.write("5. Validação humana")
     st.write("6. Decisão final")
     st.markdown("---")
@@ -528,33 +512,44 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
         for item in ordenados[:3]
     ]
 
-    explicacao = gerar_explicacao_decisao(acao, risco, pontuacao_total, fatores_principais)
+    fatores_texto = ", ".join([f["nome"] for f in fatores_principais[:2]])
+    if len(fatores_principais) >= 3:
+        fatores_texto += f" e {fatores_principais[2]['nome']}"
+
+    resumo_operacional = f"""
+**Recomendação emitida:** {acao.upper()}  
+**Nível de risco:** {risco.upper()}  
+**Pontuação total:** {pontuacao_total}  
+**Fatores críticos:** {fatores_texto}.
+"""
 
     st.markdown('<div class="cartao">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">4. Explicação da decisão e rastreabilidade</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitulo-secao">Esta secção mostra, de forma simples, porque razão o sistema gerou esta recomendação.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">4. Avaliação Operacional</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo-secao">Síntese dos fatores críticos, quadro de situação e impacto na recomendação.</div>', unsafe_allow_html=True)
 
-    st.markdown(f'<div class="caixa-explicacao">{explicacao}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="caixa-explicacao">{resumo_operacional}</div>', unsafe_allow_html=True)
 
     col_resumo1, col_resumo2 = st.columns(2)
+
     with col_resumo1:
-        st.markdown("#### Fatores principais da decisão")
+        st.markdown("#### Fatores críticos")
         for fator in fatores_principais:
-            st.write(f"• **{fator['nome']}** ({fator['codigo']}) — nível **{fator['nivel']}**")
+            st.write(f"• **{fator['nome']}** ({fator['codigo']}) — estado **{fator['nivel']}**")
+
     with col_resumo2:
-        st.markdown("#### Resumo das entradas")
+        st.markdown("#### Quadro de situação")
         st.write(f"**Posição/Trajetória:** {dados['posicao']}")
         st.write(f"**Velocidade/Curso:** {dados['velocidade']}")
-        st.write(f"**Concordância com radar/outras fontes:** {dados['radar']}")
+        st.write(f"**Concordância entre fontes:** {dados['radar']}")
         st.write(f"**Contexto operacional:** {dados['contexto']}")
 
-    st.markdown("#### Detalhe técnico dos indicadores")
+    st.markdown("#### Quadro de indicadores")
     tabela = pd.DataFrame([
         {
             "Código": info["Código"],
-            "Indicador": info["Nome"],
-            "Nível atribuído": info["Nível"],
-            "Impacto na decisão": impacto_textual(info["Contributo"])
+            "Parâmetro": info["Nome"],
+            "Estado": info["Nível"],
+            "Impacto operacional": impacto_textual(info["Contributo"])
         }
         for _, info in contributos.items()
     ])
@@ -566,11 +561,13 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
     st.markdown('<div class="subtitulo-secao">O utilizador pode confirmar ou alterar a recomendação automática com justificação.</div>', unsafe_allow_html=True)
 
     col_v1, col_v2 = st.columns([1, 2])
+
     with col_v1:
         decisao_utilizador = st.selectbox(
             "Decisão final do utilizador",
             ["Confirmar ação proposta", "Ignorar", "Monitorizar", "Escalar", "Requer revisão"]
         )
+
     with col_v2:
         justificacao = st.text_area(
             "Justificação da decisão final",
@@ -609,7 +606,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
 
 elif st.session_state.resultado_gerado and resultado_em_reserva:
     st.markdown('<div class="cartao cartao-amarelo">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">4. Explicação da decisão e rastreabilidade</div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">4. Avaliação Operacional</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitulo-secao">Informação em reserva.</div>', unsafe_allow_html=True)
-    st.warning("As entradas foram alteradas. Gere nova recomendação para atualizar a explicação, a rastreabilidade e a validação humana.")
+    st.warning("As entradas foram alteradas. Gere nova recomendação para atualizar a avaliação operacional, a rastreabilidade e a validação humana.")
     st.markdown('</div>', unsafe_allow_html=True)
