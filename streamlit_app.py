@@ -522,7 +522,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
 **Pontuação total:** {pontuacao_total}  
 **Fatores críticos:** {fatores_texto}.
 """
-st.markdown(f'<div class="caixa-explicacao">{resumo_operacional}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="caixa-explicacao">{resumo_operacional}</div>', unsafe_allow_html=True)
     
 
     st.markdown('<div class="cartao">', unsafe_allow_html=True)
