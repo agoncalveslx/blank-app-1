@@ -94,15 +94,6 @@ st.markdown("""
         margin-bottom: 6px;
     }
 
-    .caixa-explicacao {
-        background: #f8fafc;
-        padding: 16px;
-        border-radius: 14px;
-        border-left: 5px solid #2563eb;
-        margin-bottom: 15px;
-        color: #0f172a;
-    }
-
     .acao-final {
         padding: 16px;
         border-radius: 14px;
@@ -516,48 +507,16 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
     st.markdown('<div class="titulo-secao">4. Avaliação Operacional</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitulo-secao">Síntese dos fatores críticos, quadro de situação e impacto na recomendação.</div>', unsafe_allow_html=True)
 
-    st.markdown("""
-    <div style="
-        background:#0f172a;
-        color:#e5e7eb;
-        padding:18px;
-        border-radius:14px;
-        border-left:6px solid #22c55e;
-        margin-bottom:15px;
-    ">
-        <div style="font-weight:700; font-size:1.05rem; margin-bottom:12px;">
-            BRIEFING OPERACIONAL
-        </div>
+    st.info("BRIEFING OPERACIONAL")
+    st.markdown("**Estado:** Avaliação concluída")
 
-        <div style="margin-bottom:8px;">
-            <span style="color:#94a3b8;"><strong>Estado:</strong></span>
-            Avaliação concluída
-        </div>
+    st.markdown("**Fatores críticos:**")
+    for fator in fatores_principais:
+        st.write(f"• {fator['nome']}")
 
-        <div style="margin-bottom:10px;">
-            <span style="color:#94a3b8;"><strong>Fatores críticos:</strong></span><br>
-            • {0}<br>
-            • {1}<br>
-            • {2}
-        </div>
-
-        <div style="
-            margin-top:10px;
-            padding:10px;
-            background:#111827;
-            border-radius:10px;
-            border:1px solid #374151;
-        ">
-            <span style="color:#94a3b8;"><strong>Avaliação:</strong></span>
-            Situação classificada com risco {3} devido à combinação dos fatores críticos identificados.
-        </div>
-    </div>
-    """.format(
-        fatores_principais[0]["nome"],
-        fatores_principais[1]["nome"],
-        fatores_principais[2]["nome"],
-        risco.lower()
-    ), unsafe_allow_html=True)
+    st.markdown(
+        f"**Avaliação:** Situação classificada com risco **{risco.lower()}** devido à combinação dos fatores críticos identificados."
+    )
 
     col_resumo1, col_resumo2 = st.columns(2)
 
