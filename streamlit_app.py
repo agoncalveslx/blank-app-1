@@ -261,12 +261,12 @@ with st.sidebar:
     st.write("1. Processamento Operacional")
     st.write("2. Entradas do sistema")
     st.write("3. Resultado do sistema")
-    st.write("4. Avaliação Operacional")
-    st.write("5. Validação humana")
+    st.write("4. Avaliação Tática")
+    st.write("5. Confirmação do operador")
     st.write("6. Decisão final")
     st.markdown("---")
-    st.markdown("### Objetivo")
-    st.write("Simular um sistema de validação da decisão com recomendação automática e confirmação humana.")
+    st.markdown("### Missão")
+    st.write("Apoiar a validação operacional de casos marítimos com recomendação automática e decisão final sob controlo humano.")
     st.markdown('</div>', unsafe_allow_html=True)
 
 # -------------------------
@@ -279,7 +279,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander("Contexto Operacional"):
+with st.expander("Enquadramento Operacional"):
     st.write("""
 Sistema de apoio à decisão em ambiente marítimo.
 
@@ -292,9 +292,9 @@ e submete a decisão final a validação humana.
 # -------------------------
 st.markdown('<div class="cartao">', unsafe_allow_html=True)
 st.markdown('<div class="titulo-secao">Processamento Operacional</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitulo-secao">O sistema calcula indicadores, avalia o risco e gera a recomendação.</div>', unsafe_allow_html=True)
+st.markdown('<div class="subtitulo-secao">O sistema calcula indicadores, avalia o risco e emite uma recomendação.</div>', unsafe_allow_html=True)
 
-st.info("Após clicar em “Gerar recomendação”, o sistema calcula automaticamente os indicadores, a pontuação total, o nível de risco e a ação proposta.")
+st.info("Após clicar em “Gerar recomendação”, o sistema processa os indicadores, calcula a pontuação total, determina o nível de risco e emite a ação proposta.")
 
 mini1, mini2, mini3 = st.columns(3)
 
@@ -354,7 +354,7 @@ coluna1, coluna2 = st.columns([1, 1], gap="large")
 with coluna1:
     st.markdown('<div class="cartao cartao-azul">', unsafe_allow_html=True)
     st.markdown('<div class="titulo-secao">Entradas do sistema</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitulo-secao">Nesta secção, o utilizador descreve o caso que pretende analisar.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo-secao">Nesta secção, o operador descreve o caso em análise.</div>', unsafe_allow_html=True)
 
     st.markdown("### Dados AIS/VMS")
     col_a, col_b = st.columns(2)
@@ -516,8 +516,8 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
 
     with col_avaliacao:
         st.markdown('<div class="cartao">', unsafe_allow_html=True)
-        st.markdown('<div class="titulo-secao">4. Avaliação Operacional</div>', unsafe_allow_html=True)
-        st.markdown('<div class="subtitulo-secao">Síntese dos fatores críticos, quadro de situação e impacto na recomendação.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="titulo-secao">4. Avaliação Tática</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtitulo-secao">Síntese dos fatores críticos, situação tática e impacto na recomendação.</div>', unsafe_allow_html=True)
 
         st.info("BRIEFING OPERACIONAL")
         st.markdown("**Estado:** Avaliação concluída")
@@ -530,7 +530,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
             f"**Avaliação:** Situação classificada com risco **{risco.lower()}** devido à combinação dos fatores críticos identificados."
         )
 
-        st.markdown("#### Quadro de situação")
+        st.markdown("#### Situação tática")
         st.write(f"**Posição/Trajetória:** {dados['posicao']}")
         st.write(f"**Velocidade/Curso:** {dados['velocidade']}")
         st.write(f"**Concordância entre fontes:** {dados['radar']}")
@@ -540,11 +540,11 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
 
     with col_validacao:
         st.markdown('<div class="cartao cartao-azul">', unsafe_allow_html=True)
-        st.markdown('<div class="titulo-secao">5. Validação humana</div>', unsafe_allow_html=True)
-        st.markdown('<div class="subtitulo-secao">O utilizador pode confirmar ou alterar a recomendação automática com justificação.</div>', unsafe_allow_html=True)
+        st.markdown('<div class="titulo-secao">5. Confirmação do operador</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtitulo-secao">O operador pode confirmar ou alterar a recomendação automática com justificação.</div>', unsafe_allow_html=True)
 
         decisao_utilizador = st.selectbox(
-            "Decisão final do utilizador",
+            "Decisão final do operador",
             ["Confirmar ação proposta", "Ignorar", "Monitorizar", "Escalar", "Requer revisão"]
         )
 
@@ -601,7 +601,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
         decisao_final = acao if decisao_utilizador == "Confirmar ação proposta" else decisao_utilizador
 
         st.markdown('<div class="cartao cartao-verde">', unsafe_allow_html=True)
-        st.markdown('<div class="titulo-secao">6. Decisão final justificada</div>', unsafe_allow_html=True)
+        st.markdown('<div class="titulo-secao">6. Decisão final</div>', unsafe_allow_html=True)
         st.markdown('<div class="subtitulo-secao">Registo final da decisão humana apoiada pelo sistema.</div>', unsafe_allow_html=True)
 
         r1, r2, r3, r4 = st.columns(4)
@@ -614,7 +614,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
         with r4:
             st.metric("Pontuação total", pontuacao_total)
 
-        st.markdown("#### Justificação")
+        st.markdown("#### Justificação operacional")
         if justificacao.strip():
             st.write(justificacao)
         else:
@@ -625,7 +625,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
 
 elif st.session_state.resultado_gerado and resultado_em_reserva:
     st.markdown('<div class="cartao cartao-amarelo">', unsafe_allow_html=True)
-    st.markdown('<div class="titulo-secao">4. Avaliação Operacional</div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">4. Avaliação Tática</div>', unsafe_allow_html=True)
     st.markdown('<div class="subtitulo-secao">Informação em reserva.</div>', unsafe_allow_html=True)
-    st.warning("As entradas foram alteradas. Gere nova recomendação para atualizar a avaliação operacional, a rastreabilidade e a validação humana.")
+    st.warning("As entradas foram alteradas. Gere nova recomendação para atualizar a avaliação tática, a rastreabilidade e a confirmação do operador.")
     st.markdown('</div>', unsafe_allow_html=True)
