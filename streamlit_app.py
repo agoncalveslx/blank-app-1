@@ -274,9 +274,9 @@ pesos = {
 with st.sidebar:
     st.markdown('<div class="bloco-lateral">', unsafe_allow_html=True)
     st.markdown("### Navegação")
-    st.write("1. Lógica interna")
+    st.write("1. Processamento Operacional")
     st.write("2. Entradas do sistema")
-    st.write("3. Resultado")
+    st.write("3. Resultado do sistema")
     st.write("4. Explicação da decisão")
     st.write("5. Validação humana")
     st.write("6. Decisão final")
@@ -363,7 +363,7 @@ with mini3:
 st.markdown('</div>', unsafe_allow_html=True)
 
 # -------------------------
-# Entradas e Resultado lado a lado
+# Entradas e deteção de alterações
 # -------------------------
 coluna1, coluna2 = st.columns([1, 1], gap="large")
 
@@ -409,43 +409,66 @@ with coluna1:
     gerar = st.button("Gerar recomendação", use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-    if gerar:
-        indicadores = calcular_indicadores(posicao, velocidade, radar, contexto)
+estado_atual = {
+    "posicao": posicao,
+    "velocidade": velocidade,
+    "radar": radar,
+    "contexto": contexto
+}
 
-        contributos = {}
-        pontuacao_total = 0
+resultado_em_reserva = False
 
-        for chave, valor in indicadores.items():
-            pontos = nivel_para_pontos(valor)
-            contributo = pontos * pesos[chave]
-            contributos[chave] = {
-                "Código": chave,
-                "Nome": nomes_indicadores[chave],
-                "Nível": valor,
-                "Pontos": pontos,
-                "Peso": pesos[chave],
-                "Contributo": contributo
-            }
-            pontuacao_total += contributo
+if st.session_state.resultado_gerado and st.session_state.dados_resultado is not None:
+    ultimo_estado = {
+        "posicao": st.session_state.dados_resultado["posicao"],
+        "velocidade": st.session_state.dados_resultado["velocidade"],
+        "radar": st.session_state.dados_resultado["radar"],
+        "contexto": st.session_state.dados_resultado["contexto"]
+    }
+    if estado_atual != ultimo_estado:
+        resultado_em_reserva = True
 
-        risco = nivel_risco(pontuacao_total)
-        acao = acao_proposta(pontuacao_total)
+if gerar:
+    indicadores = calcular_indicadores(posicao, velocidade, radar, contexto)
 
-        st.session_state.dados_resultado = {
-            "posicao": posicao,
-            "velocidade": velocidade,
-            "radar": radar,
-            "contexto": contexto,
-            "indicadores": indicadores,
-            "contributos": contributos,
-            "pontuacao_total": pontuacao_total,
-            "risco": risco,
-            "acao": acao
+    contributos = {}
+    pontuacao_total = 0
+
+    for chave, valor in indicadores.items():
+        pontos = nivel_para_pontos(valor)
+        contributo = pontos * pesos[chave]
+        contributos[chave] = {
+            "Código": chave,
+            "Nome": nomes_indicadores[chave],
+            "Nível": valor,
+            "Pontos": pontos,
+            "Peso": pesos[chave],
+            "Contributo": contributo
         }
-        st.session_state.resultado_gerado = True
+        pontuacao_total += contributo
 
+    risco = nivel_risco(pontuacao_total)
+    acao = acao_proposta(pontuacao_total)
+
+    st.session_state.dados_resultado = {
+        "posicao": posicao,
+        "velocidade": velocidade,
+        "radar": radar,
+        "contexto": contexto,
+        "indicadores": indicadores,
+        "contributos": contributos,
+        "pontuacao_total": pontuacao_total,
+        "risco": risco,
+        "acao": acao
+    }
+    st.session_state.resultado_gerado = True
+    resultado_em_reserva = False
+
+# -------------------------
+# Resultado do sistema
+# -------------------------
 with coluna2:
-    if st.session_state.resultado_gerado and st.session_state.dados_resultado is not None:
+    if st.session_state.resultado_gerado and st.session_state.dados_resultado is not None and not resultado_em_reserva:
         dados = st.session_state.dados_resultado
         pontuacao_total = dados["pontuacao_total"]
         risco = dados["risco"]
@@ -469,6 +492,14 @@ with coluna2:
             unsafe_allow_html=True
         )
         st.markdown('</div>', unsafe_allow_html=True)
+
+    elif st.session_state.resultado_gerado and resultado_em_reserva:
+        st.markdown('<div class="cartao cartao-amarelo">', unsafe_allow_html=True)
+        st.markdown('<div class="titulo-secao">Resultado do sistema</div>', unsafe_allow_html=True)
+        st.markdown('<div class="subtitulo-secao">Resultado em reserva.</div>', unsafe_allow_html=True)
+        st.warning("As entradas foram alteradas após a última geração. Clique em “Gerar recomendação” para atualizar o processamento.")
+        st.markdown('</div>', unsafe_allow_html=True)
+
     else:
         st.markdown('<div class="cartao">', unsafe_allow_html=True)
         st.markdown('<div class="titulo-secao">Resultado do sistema</div>', unsafe_allow_html=True)
@@ -477,9 +508,9 @@ with coluna2:
         st.markdown('</div>', unsafe_allow_html=True)
 
 # -------------------------
-# Secções seguintes apenas após geração
+# Secções seguintes
 # -------------------------
-if st.session_state.resultado_gerado and st.session_state.dados_resultado is not None:
+if st.session_state.resultado_gerado and st.session_state.dados_resultado is not None and not resultado_em_reserva:
     dados = st.session_state.dados_resultado
     contributos = dados["contributos"]
     pontuacao_total = dados["pontuacao_total"]
@@ -575,3 +606,10 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
 
         st.success("Registo concluído com recomendação automática e validação humana.")
         st.markdown('</div>', unsafe_allow_html=True)
+
+elif st.session_state.resultado_gerado and resultado_em_reserva:
+    st.markdown('<div class="cartao cartao-amarelo">', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-secao">4. Explicação da decisão e rastreabilidade</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo-secao">Informação em reserva.</div>', unsafe_allow_html=True)
+    st.warning("As entradas foram alteradas. Gere nova recomendação para atualizar a explicação, a rastreabilidade e a validação humana.")
+    st.markdown('</div>', unsafe_allow_html=True)
