@@ -124,7 +124,26 @@ st.markdown("""
         color: #64748b;
     }
 
-    
+    .mini-cartao-indicador {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        background: #f8fafc;
+    }
+
+    .mini-cartao-titulo {
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 6px;
+        font-size: 0.96rem;
+    }
+
+    .mini-cartao-linha {
+        font-size: 0.9rem;
+        color: #334155;
+        line-height: 1.4;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -245,7 +264,6 @@ pesos = {
     "I5": 1,
     "I6": 3
 }
-
 
 # -------------------------
 # Cabeçalho
@@ -534,7 +552,7 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
         st.markdown('</div>', unsafe_allow_html=True)
 
     # -------------------------
-    # Quadro de indicadores em duas colunas
+    # Quadro de indicadores com mini-cartões
     # -------------------------
     st.markdown('<div class="cartao">', unsafe_allow_html=True)
     st.markdown('<div class="titulo-secao">Quadro de indicadores</div>', unsafe_allow_html=True)
@@ -554,19 +572,23 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
 
         codigo_a, info_a = pares[i]
         with col_a:
-            st.markdown(
-                f"**{codigo_a} — {siglas_indicadores[codigo_a]}**  \n"
-                f"Estado: **{info_a['Nível']}**  \n"
-                f"Impacto na decisão: **{impacto_textual(info_a['Contributo'])}**"
-            )
+            st.markdown(f"""
+            <div class="mini-cartao-indicador">
+                <div class="mini-cartao-titulo">{codigo_a} — {siglas_indicadores[codigo_a]}</div>
+                <div class="mini-cartao-linha">Estado: <b>{info_a['Nível']}</b></div>
+                <div class="mini-cartao-linha">Impacto na decisão: <b>{impacto_textual(info_a['Contributo'])}</b></div>
+            </div>
+            """, unsafe_allow_html=True)
 
         codigo_b, info_b = pares[i + 1]
         with col_b:
-            st.markdown(
-                f"**{codigo_b} — {siglas_indicadores[codigo_b]}**  \n"
-                f"Estado: **{info_b['Nível']}**  \n"
-                f"Impacto na decisão: **{impacto_textual(info_b['Contributo'])}**"
-            )
+            st.markdown(f"""
+            <div class="mini-cartao-indicador">
+                <div class="mini-cartao-titulo">{codigo_b} — {siglas_indicadores[codigo_b]}</div>
+                <div class="mini-cartao-linha">Estado: <b>{info_b['Nível']}</b></div>
+                <div class="mini-cartao-linha">Impacto na decisão: <b>{impacto_textual(info_b['Contributo'])}</b></div>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.markdown('</div>', unsafe_allow_html=True)
 
