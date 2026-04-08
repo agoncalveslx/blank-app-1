@@ -243,6 +243,15 @@ nomes_indicadores = {
     "I6": "Consistência entre fontes"
 }
 
+siglas_indicadores = {
+    "I1": "Identidade",
+    "I2": "Alt. identidade",
+    "I3": "Cinemática",
+    "I4": "Espaço-tempo",
+    "I5": "Contexto",
+    "I6": "Entre fontes"
+}
+
 pesos = {
     "I1": 3,
     "I2": 2,
@@ -558,23 +567,23 @@ if st.session_state.resultado_gerado and st.session_state.dados_resultado is not
         st.markdown('</div>', unsafe_allow_html=True)
 
     # -------------------------
-    # Gráfico de indicadores
+    # Quadro de indicadores compacto
     # -------------------------
     st.markdown('<div class="cartao">', unsafe_allow_html=True)
     st.markdown('<div class="titulo-secao">Quadro de indicadores</div>', unsafe_allow_html=True)
-    st.markdown('<div class="subtitulo-secao">Visualização compacta do impacto operacional dos indicadores.</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo-secao">Visualização compacta do estado e impacto operacional de cada indicador.</div>', unsafe_allow_html=True)
 
-    grafico_df = pd.DataFrame([
-        {
-            "Indicador": f"{info['Código']} — {info['Nome']}",
-            "Impacto": impacto_num(info["Contributo"])
-        }
-        for _, info in contributos.items()
-    ])
+    for _, info in contributos.items():
+        impacto = impacto_num(info["Contributo"])
+        barra = "█" * impacto + "░" * (3 - impacto)
 
-    st.bar_chart(grafico_df.set_index("Indicador"), horizontal=True)
+        st.markdown(
+            f"**{info['Código']} — {siglas_indicadores[info['Código']]}**  \n"
+            f"Estado: **{info['Nível']}** | Impacto: **{impacto_textual(info['Contributo'])}**  \n"
+            f"`{barra}`"
+        )
 
-    st.caption("Escala do impacto: 0 = Muito reduzido | 1 = Reduzido | 2 = Moderado | 3 = Elevado")
+    st.caption("Escala visual: 0 = Muito reduzido | 1 = Reduzido | 2 = Moderado | 3 = Elevado")
     st.markdown('</div>', unsafe_allow_html=True)
 
     # -------------------------
